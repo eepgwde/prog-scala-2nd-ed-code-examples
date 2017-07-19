@@ -1,7 +1,7 @@
 // src/main/scala/progscala2/objectsystem/CommandArgs.scala
 package progscala2.objectsystem
 
-object CommandArgs {
+object CommandArgs extends App {
 
   val help = """
   |usage: java ... objectsystem.CommandArgs arguments
@@ -35,8 +35,6 @@ object CommandArgs {
     argz
   }
 
-  def main(args: Array[String]) = {
-    val argz = parseArgs(args)
-    println(argz)
-  }
+  val argz = parseArgs(args)
+  println(argz)
 }
