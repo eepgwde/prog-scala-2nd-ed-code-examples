@@ -224,3 +224,82 @@ for (fn <- names)
     f.close
   }
 
+// Better solutions are .Net using () {}
+// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement
+
+// Scala has some support, but not in the language yet?
+// Scala Automatic Resource Management
+// https://github.com/jsuereth/scala-arm
+
+import java.lang.AutoCloseable
+import java.nio.file.{Files, Paths}
+import java.util.Optional
+
+def autoClose[A <: AutoCloseable,B](closeable: A)(fun: (A) ⇒ B): B = {
+    try {
+        fun(closeable)
+    } finally {
+        closeable.close()
+    }
+}
+
+val result: Optional[String] = autoClose(Files.lines(Paths.get(fn.toString))) { stream ⇒
+    stream.findAny()
+}
+
+// Note: List is abstract so this cannot use the "new" keyword.
+// List has a companion object that acts as a factory.
+
+// Like this one
+
+class Person {
+    var name: String = _
+  var age: Int = 0
+}
+
+object Person {
+    def apply(name: String): Person = {
+        var p = new Person
+        p.name = name
+        p
+    }
+    def apply(name: String, age: Int): Person = {
+        var p = new Person
+        p.name = name
+        p.age = age
+        p
+    }
+  // you can have overload the apply method
+}
+
+val pete = Person("Pete")
+val peter = Person("Peter", 42)
+
+case class Person1 (var name: String)
+
+val dave = Person1("Dave")
+
+
+
+// Annotations (or Decorations) Scala supports these
+// http://www.scala-lang.org/api/2.12.0/scala/annotation/Annotation.html
+
+// tailrec 
+// implicitNotFound implicitAmbiguous
+
+// Switch statement is replaced by match
+
+
+// Back to switch
+
+val args = List[String]("salt")
+
+val firstArg = if (args.length > 0) args(0) else ""
+firstArg match {
+  case "salt" => println("pepper")
+  case "chips" => println("salsa")
+  case "eggs" => println("bacon")
+  case _ => println("huh?")
+}
+
+
