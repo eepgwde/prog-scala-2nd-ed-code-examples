@@ -1,17 +1,25 @@
-// @author weaves
-//
+// * @author weaves
+
 // Introductory examples.
 
+// * Types
 
-// wildcard type.
+// ** Wildcard Type
+
 def f0(m:Map[_ <: AnyRef,_ <: AnyRef]):Int = {
   println(m.size)
   m.size
 }
 
-1 + 2
-
 val m = sys.env
+
+f0(m)
+
+// *** Note
+
+// The <: is any sub-class of AnyRef.
+
+// ** Maps and iterations
 
 m.foreach( x => println(s"$x._1 -> $x._2"))
 
@@ -19,13 +27,22 @@ for ((k,v) <- m) printf("key: %s, value: %s\n", k, v)
 
 m foreach {case (key, value) => println (key + "-->" + value)}
 
-// Rich operations
+// *** Note
+
+// The last operation is the case-class idiom. This was added to because foreach()
+// (and others like map) would find the statement ambiguous.
+
+// ** Rich operations
+// Some useful operations are available on the Rich Types.
 
 0 max 5
 
 0 min 5
 
-// The post-fix operators need to be enabled.
+// *** Post-fix Operators
+
+// Some operators are available as post-fix. But this need to be enabled with the
+// following import.
 
 import scala.language.postfixOps
 
@@ -43,10 +60,10 @@ import scala.language.postfixOps
 
 "robert" drop 2
 
+// *** Rich types
+
 /*
  
-// Rich types
-
 scala.runtime.RichByte                Byte     
 scala.runtime.RichShort		      Short  
 scala.runtime.RichInt		      Int    
@@ -58,9 +75,11 @@ scala.collection.immutable.StringOps  String
 
 http://www.scala-lang.org/api/2.11.8/index.html#scala.collection.immutable.StringOps
 
+*/ 
 
+// *** Type Variance
 
-// Type variance: 
+/* 
 
 Name 	
 Description 	
@@ -97,28 +116,50 @@ val l1: List[Apple] = Apple() :: Nil
 
 val l2: List[Fruit] = Orange() :: l1
 
-// and also, it's safe to prepend with "anything",
+// **** Note
+
+// The generic lists are covariant because of Fruit.
+
+// *** Generic Lists
+
+// And also, it's safe to prepend with "anything",
 // as we're building a new list - not modifying the previous instance
 
 val l3: List[AnyRef] = "" :: l2
 
-// Array is mutable so this won't compile
+// Array is mutable so this won't compile, either though the target is "val"
 val a: Array[Any] = Array[Int](1, 2, 3)
 
 // But a wild card will allow it.
 val a: Array[_ <: Any] = Array[Int](1, 2, 3)
 
+// ** Identifiers
 
-// Identifiers paired back-ticks can make any token - even reserved words - identifiers.
+// Identifiers paired back-ticks can make any token - even reserved words -
+// identifiers.
 
 val `yield`:Int = 1
 println(`yield`)
+
+val `no yield`:Int = 1
+println(`no yield`)
 
 // If it doesn't need backticks, but they're used
 val `x0`:Int = 1
 println(x0)
 
-// Implicit conversions
+// *** Note
+
+// Spaces and other glyphs can be used.
+
+// ** Implicit conversions
+
+// Introduce the Rational class. This has many features.
+// In particular, there is linear construction. The require(), then the gcd(). 
+
+// this() is an alternative constructor.
+
+// various operator overloads.
 
 class Rational(n: Int, d: Int) {
   require(d != 0)
@@ -160,6 +201,7 @@ class Rational(n: Int, d: Int) {
   def / (i: Int): Rational =
     new Rational(numer, denom * i)
 
+  // Note that override has to be stated.
   override def toString = numer +"/"+ denom
 
   private def gcd(a: Int, b: Int): Int =
@@ -174,7 +216,9 @@ r * 2
 
 2 * r
 
-// so use an implicit
+/// *** Add an implicit method
+
+// so introduce an implicit using this package to notify the interpreter.
 
 import scala.language.implicitConversions
 
@@ -182,15 +226,25 @@ implicit def intToRational(x: Int) = new Rational(x)
 
 2 * r
 
-// Control structures and iteration
-// listFiles is a Java method.
+/// **** Note: now works.
+
+// ** Control structures and iteration
+
+// *** listFiles is a Java method.
 
 val filesHere = (new java.io.File(".")).listFiles
 
 for (file <- filesHere)
   println(file)
 
-// Using yield
+// **** Note: java.io.File.listfiles
+
+// This can be called without (). It returns an array.
+
+// *** Using yield
+
+// yield is not similar to Python's generator. It re-scopes the file variable and
+// takes it as a return value.
 
 def scalaFiles =
   for {
@@ -198,7 +252,7 @@ def scalaFiles =
     if file.getName.endsWith(".scala")
   } yield file
 
-// try-catch
+// *** try-catch
 
 // Render an Array as a List
 // And typing a var for a block.
@@ -206,7 +260,6 @@ def scalaFiles =
 import java.io.FileReader
 import java.io.FileNotFoundException
 import java.io.IOException
-
 
 val names = scalaFiles.toList.head :: List(new java.io.File("input.txt"))
 
@@ -224,12 +277,18 @@ for (fn <- names)
     f.close
   }
 
+// **** Note
+
+// Other run-time environments support Automatic Resource Management methods.
+
 // Better solutions are .Net using () {}
 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement
 
 // Scala has some support, but not in the language yet?
 // Scala Automatic Resource Management
 // https://github.com/jsuereth/scala-arm
+
+// *** Implementing AutoCloseable
 
 import java.lang.AutoCloseable
 import java.nio.file.{Files, Paths}
@@ -246,6 +305,8 @@ def autoClose[A <: AutoCloseable,B](closeable: A)(fun: (A) ⇒ B): B = {
 val result: Optional[String] = autoClose(Files.lines(Paths.get(fn.toString))) { stream ⇒
     stream.findAny()
 }
+
+// ** Companion Objects
 
 // Note: List is abstract so this cannot use the "new" keyword.
 // List has a companion object that acts as a factory.
@@ -269,8 +330,13 @@ object Person {
         p.age = age
         p
     }
-  // you can have overload the apply method
 }
+
+// *** Note: overloads of apply
+
+// you can have overload the apply method
+
+// *** Examples
 
 val pete = Person("Pete")
 val peter = Person("Peter", 42)
@@ -279,20 +345,29 @@ case class Person1 (var name: String)
 
 val dave = Person1("Dave")
 
+pete.name
+peter.name
+peter.age
 
+dave.name
 
-// Annotations (or Decorations) Scala supports these
+// **** Note
+
+// You can see the alternative constructions.
+
+// ** Annotations (or Decorations) 
+// Scala supports these
+
 // http://www.scala-lang.org/api/2.12.0/scala/annotation/Annotation.html
 
+// *** Important
 // tailrec 
 // implicitNotFound implicitAmbiguous
 
-// Switch statement is replaced by match
+// ** Switch statement
+// This is replaced by match
 
-
-// Back to switch
-
-val args = List[String]("salt")
+val args = List[Any]("salt", 1)
 
 val firstArg = if (args.length > 0) args(0) else ""
 firstArg match {
@@ -302,4 +377,130 @@ firstArg match {
   case _ => println("huh?")
 }
 
+for(arg <- args) {
+  arg match {
+    case "salt" => println("pepper")
+    case "chips" => println("salsa")
+    case "eggs" => println("bacon")
+    case 1 => println("1:Int")
+    case _ => println("huh?")
+  }
+}
 
+// *** Note
+// This is very flexible, it can support mixed types too.
+
+// ** Loop control: break and continue
+
+// Scala does not directly support break and continue, but there is a breakable block extension.
+
+import scala.util.control.Breaks._
+import java.io._
+val in = new BufferedReader(new InputStreamReader(System.in))
+breakable {
+  while (true) {
+    println("? ")
+    if (in.readLine() == "") break
+  }
+}
+
+// *** Note
+// This is a feature of Scala that isn't too easy to appreciate. Scala only has
+// expressions. 
+
+// ** Variable scope
+
+// Almost like Java, but does allow new variable with a name from an outer scope.
+
+// ** Functions and closures
+
+// A function is a Lambda and is an object.
+
+var increase = (x: Int) => x + 9999
+
+// *** Some currying 
+
+def sum(a: Int, b: Int, c: Int) = a + b + c
+
+val sum1 = sum(1, _:Int, 3)
+
+6 == sum1(2)
+
+// *** Partially applied function
+// Note the trailing underscore
+
+val sum2 = sum _
+
+// *** Closure
+
+// By contrast, Java’s inner classes do not allow you to access
+// modifiable variables in surrounding scopes at all, so there is no
+// difference between capturing a variable and capturing its currently
+// held value.
+
+// This captures the value of 'more' and uses it within a lambda function.
+
+def makeIncreaser(more: Int) = (x: Int) => x + more
+
+val add10 = makeIncreaser(10)
+
+val add15 = makeIncreaser(15)
+
+add10(5)
+add10(15)
+
+// ** Function Parameters Definition 
+
+// *** Repeated parameters use the star *
+
+def echo(args: String*) = for (arg <- args) println(arg)
+
+echo("a", "b")
+
+// *** Arrays can be expanded when passed
+
+val arr = Array("a", "b", "c")
+
+echo(arr: _*)
+
+// *** Named arguments
+
+def speed(distance: Float, time: Float): Float =
+  distance / time
+
+/// *** Note: and by name
+
+speed(time = 10, distance = 120)
+
+// *** Default value for a parameter
+
+def printTime(out: java.io.PrintStream = System.out, divisor: Int = 1) =
+  out.println("time = "+ System.currentTimeMillis()/divisor)
+
+// *** Empty brackets required
+// The following doesn't work, (it returns the partially applied function)
+// The brackets are required.
+
+printTime
+
+printTime()
+
+printTime(out = System.err, divisor = 1000000)
+
+
+
+// * Postamble
+
+// The following are the file variables.
+
+// Local Variables:
+// mode:scala
+// scala-edit-mark-re: "^// [\\*]+ "
+// comment-column:50 
+// comment-start: "// "  
+// comment-end: "" 
+// eval: (outline-minor-mode)
+// outline-regexp: "// [*]+"
+// eval: (auto-fill-mode)
+// fill-column: 85 
+// End: 
