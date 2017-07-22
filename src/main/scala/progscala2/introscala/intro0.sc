@@ -487,6 +487,62 @@ printTime()
 
 printTime(out = System.err, divisor = 1000000)
 
+// ** Tail Recursion
+
+// It is possible to implement many methods without recursion because it may appear
+// to be less expensive - less stack frames. But with tail-recursion, the Scala
+// compiler can apply an optimization and use only one stack frame. (It does the
+// iteration for you. Type 0 (ForTran) and Type 1 (C-based runtime) languages.)
+
+// But the tail-recursion must be well-formed - the recursion must be the last
+// invocation in the method.
+
+// *** Tracing: bad: many stack frames
+
+// This isn't tail-recursive because of the + 1 at the end. 
+
+def boom(x: Int): Int = { 
+  if (x == 0) throw new Exception("boom!") 
+  else boom(x - 1) + 1
+}
+
+boom(3)
+
+// **** Note
+// The exception shows 4 stack frames, one for the initial invocation and then 3 for
+// the recursive ones - counting down to zero.
+
+// *** Tracing: good: one stack frame
+
+def bang(x: Int): Int = {
+  if (x == 0) throw new Exception("bang!")
+  else bang(x - 1)
+}
+
+bang(3)
+
+// The exception now shows 1 stack frame
+
+// *** Tracing: good: one stack frame with annotation
+
+// The annotation helps the compiler apply the stack frame optimization.
+
+@annotation.tailrec def bang(x: Int): Int = {
+  if (x == 0) throw new Exception("bang!")
+  else bang(x - 1)
+}
+
+bang(3)
+
+// *** Tracing: bad: annotation throws compile-error
+
+@annotation.tailrec def boom(x: Int): Int = { 
+  if (x == 0) throw new Exception("boom!") 
+  else boom(x - 1)
+}
+
+boom(3)
+
 
 
 // * Postamble
