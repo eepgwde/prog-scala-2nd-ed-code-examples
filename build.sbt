@@ -26,7 +26,8 @@ libraryDependencies ++= Seq(
 scalacOptions ++= Seq(
   "-encoding", "UTF-8", "-optimise",
   "-deprecation", "-unchecked", "-feature", "-Xlint",
-  "-Ywarn-infer-any", // Nice, but hard to eliminate these warnings: "-Ywarn-value-discard")
+  "-Ywarn-infer-any", 
+// Nice, but hard to eliminate these warnings: "-Ywarn-value-discard")
   "-language:experimental.macros")
 
 javacOptions  ++= Seq(
