@@ -2,7 +2,27 @@
 
 // * Introductory examples
 
+// Original first steps example.
+
+// ** src/main/scala/progscala2/typelessdomore/method-recursive-return.sc
+
+// ERROR: Won't compile until you put an Int return type on "fact".
+import scala.annotation.tailrec
+
+def factorial(i: Int) = {
+  @tailrec
+  def fact(i: Int, accumulator: Int) = {
+    if (i <= 1)
+      accumulator
+    else
+      fact(i - 1, i * accumulator)  // COMPILATION ERROR
+  }
+
+  fact(i, 1)
+}
+
 // ** src/main/scala/progscala2/typelessdomore/factorial-tailrec.sc
+
 import scala.annotation.tailrec
 
 def factorial(i: Int): Long = {
@@ -27,6 +47,14 @@ def hello(name: String) = s"""Welcome!
 
 hello("Programming Scala")
 
+// ** src/main/scala/progscala2/typelessdomore/multiline-strings2.sc
+
+def goodbye(name: String) = 
+  s"""xxxGoodbye, ${name}yyy
+  xxxCome again!yyy""".stripPrefix("xxx").stripSuffix("yyy")
+
+goodbye("Programming Scala")
+
 // ** src/main/scala/progscala2/typelessdomore/method-broad-inference-return.sc
 
 def makeList(strings: String*) = {
@@ -37,6 +65,9 @@ def makeList(strings: String*) = {
 }
 
 val list: List[String] = makeList()  // ERROR
+
+// *** Note
+// This is no longer an error.
 
 // ** src/main/scala/progscala2/typelessdomore/implicit-strings.sc
 
@@ -70,6 +101,12 @@ def countTo(n: Int): Unit = {
   }
   count(1)
 }
+
+countTo(10)
+
+// *** Note
+// This demonstrates internal functions capture the holding function's state and can
+// be recursive.
 
 // ** src/main/scala/progscala2/typelessdomore/factorial.sc
 
@@ -107,11 +144,16 @@ class FileBulkReader(val source: File) extends BulkReader[File] {
 }
 
 println( new StringBulkReader("Hello Scala!").read )
-// Assumes the current directory is src/main/scala:
+
+// Assumes the current directory is parent of misc/.
 println( new FileBulkReader(
-  new File("TypeLessDoMore/parameterized-types.sc")).read )
+  new File("misc/typelessdomore.sc")).read )
+
+// *** Note
+// Abstract class and override example.
 
 // ** src/main/scala/progscala2/typelessdomore/map-get.sc
+
 // Very limited version of a map; it can hold only one key-value
 // pair! The "get" method is used in the text, by itself...
 
@@ -130,19 +172,8 @@ class MyMap[A,B](var _key: A, var _value: B) {
 val m = new MyMap(1, "one")
 println( m.get(1) )
 
-// ** src/main/scala/progscala2/typelessdomore/method-overloaded-return-v3.sc
-// Version 3 of "StringUtil" (New variable argument list methods).
-
-object StringUtilV3 {
-  def joiner(strings: List[String], separator: String): String = 
-    strings.mkString(separator)
-
-  def joiner(strings: List[String]): String = joiner(strings, " ") 
-  def joiner(strings: String*): String      = joiner(strings.toList)
-
-}
-
-println( StringUtilV3.joiner(List("Programming", "Scala")) )
+// *** Note
+// Demonstrates type inference.
 
 // ** src/main/scala/progscala2/typelessdomore/partial-functions.sc
 
@@ -165,6 +196,26 @@ List("str", 3.14, 10) foreach { x =>
     d(x,pf1), tryPF(x,pf1), d(x,pf2), tryPF(x,pf2), d(x,pf), tryPF(x,pf))
 }
 
+// *** Note
+
+// Partial function means that the function is only defined for certain values of the
+// defined type. Here, we define pf as pf1 or pf2, so only allow the first Any-typed
+// argument to be a string or a Double.
+//
+// So part of function composition.
+
+/*
+
+      |   pf1 - String  |   pf2 - Double  |    pf - All
+x     | def?  |  pf1(x) | def?  |  pf2(x) | def?  |  pf(x)
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+str   | true  | YES     | false | ERROR!  | true  | YES   
+3.14  | false | ERROR!  | true  | YES     | true  | YES   
+10    | false | ERROR!  | false | ERROR!  | false | ERROR!
+
+*/
 
 // ** src/main/scala/progscala2/typelessdomore/method-overloaded-return-v2.sc
 // Version 2 of "StringUtil" (with a fixed compilation error).
@@ -177,39 +228,41 @@ object StringUtilV2 {
 
 println( StringUtilV2.joiner(List("Programming", "Scala")) )
 
-// ** src/main/scala/progscala2/typelessdomore/method-recursive-return.sc
-// ERROR: Won't compile until you put an Int return type on "fact".
-import scala.annotation.tailrec
+// ** src/main/scala/progscala2/typelessdomore/method-overloaded-return-v3.sc
 
-def factorial(i: Int) = {
-  @tailrec
-  def fact(i: Int, accumulator: Int) = {
-    if (i <= 1)
-      accumulator
-    else
-      fact(i - 1, i * accumulator)  // COMPILATION ERROR
-  }
+// Version 3 of "StringUtil" (New variable argument list methods).
 
-  fact(i, 1)
+object StringUtilV3 {
+  def joiner(strings: List[String], separator: String): String = 
+    strings.mkString(separator)
+
+  def joiner(strings: List[String]): String = joiner(strings, " ") 
+  def joiner(strings: String*): String      = joiner(strings.toList)
+
 }
 
+println( StringUtilV3.joiner(List("Programming", "Scala")) )
 
-// ** src/main/scala/progscala2/typelessdomore/multiline-strings2.sc
+/// *** Note
+/// This gets around adding a default separator String to a function that takes
+/// String*. I think.
 
-def goodbye(name: String) = 
-  s"""xxxGoodbye, ${name}yyy
-  xxxCome again!yyy""".stripPrefix("xxx").stripSuffix("yyy")
-
-goodbye("Programming Scala")
 
 // ** src/main/scala/progscala2/typelessdomore/state-capitals-map-decl.sc
 
 val stateCapitals = Map(
   "Alabama" -> "Montgomery",
   "Alaska"  -> "Juneau",
+  "Washington"  -> "Olympia",
   // ...
   "Wyoming" -> "Cheyenne")
 // ...
+
+val capitals0 = stateCapitals
+
+/// *** Note
+/// Just a check to show that re-assigning to a val does not lose the original
+/// object.
 
 // ** src/main/scala/progscala2/typelessdomore/state-capitals-subset.sc
 
@@ -229,6 +282,13 @@ println( "Alabama: " + stateCapitals.get("Alabama").get )
 println( "Wyoming: " + stateCapitals.get("Wyoming").getOrElse("Oops!") )
 println( "Unknown: " + stateCapitals.get("Unknown").getOrElse("Oops2!") )
 
+/// *** Note
+// In the first, you only see None - which you may not recognize as a fail.
+// scala> Alabama: Some(Montgomery)
+// scala> Wyoming: Some(Cheyenne)
+// scala> Unknown: None
+
+
 // ** src/main/scala/progscala2/typelessdomore/tuple-example.sc
 
 val t = ("Hello", 1, 2.3)                                            // <1>
@@ -237,11 +297,31 @@ println( "Print the first item:  " + t._1 )                          // <2>
 println( "Print the second item: " + t._2 )
 println( "Print the third item:  " + t._3 )
 
+val t0 = "World"
+
 val (t1, t2, t3) = ("World", '!', 0x22)                              // <3>
-println( t1 + ", " + t2 + ", " + t3 )   
 
 val (t4, t5, t6) = Tuple3("World", '!', 0x22)                        // <4>
+
+println( t1 + ", " + t2 + ", " + t3 )   
 println( t4 + ", " + t5 + ", " + t6 )   
+
+val t0 = ( () => "Wor" + "ld")()
+
+t1 == t4
+t1.equals(t4)
+
+t0 == t4
+t0.equals(t4)
+t0 eq t4
+
+t1 eq t4
+t4 eq t1
+
+// *** Note
+// The Tuple3 doesn't type coerce and it can split up to different values
+// And a quick comparison of equals, reference equals
+// http://www.scala-lang.org/api/current/scala/AnyRef.html
 
 // ** src/main/scala/progscala2/typelessdomore/abstract-types.sc
 import java.io._
@@ -312,9 +392,8 @@ p.age = 30
 
 p
 
-
-
 // ** src/main/scala/progscala2/typelessdomore/futures.sc
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -342,6 +421,12 @@ def doWork(index: Int) = {
 
 sleep(1000)  // Wait long enough for the "work" to finish.
 println("Finito!")
+
+/// *** Note
+/// Background task execution is very easy to do. Using Future { }.
+/// This is a block expression like break {}.
+/// The use of the Implicits package is transparent.
+
 
 // * Postamble
 

@@ -306,6 +306,38 @@ val result: Optional[String] = autoClose(Files.lines(Paths.get(fn.toString))) { 
     stream.findAny()
 }
 
+// **** Note
+
+// There is a trick to declaring variables for try-catch
+
+// *** Using Option with try-catch
+
+import java.io._
+
+object CopyBytes extends App {
+    var in = None: Option[FileInputStream]
+    var out = None: Option[FileOutputStream]
+    try {
+        in = Some(new FileInputStream("/tmp/Test.class"))
+        out = Some(new FileOutputStream("/tmp/Test.class.copy"))
+        var c = 0
+        while ({c = in.get.read; c != −1}) {
+            out.get.write(c)
+        }
+    } catch {
+        case e: IOException => e.printStackTrace
+    } finally {
+        println("entered finally ...")
+        if (in.isDefined) in.get.close
+        if (out.isDefined) out.get.close
+    }
+}
+
+// **** Note
+
+// You use Option, Some and None. There is an alternative - using Right and Left.
+// See valuetypes.sc 
+
 // ** Companion Objects
 
 // Note: List is abstract so this cannot use the "new" keyword.

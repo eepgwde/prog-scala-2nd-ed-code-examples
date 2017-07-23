@@ -2,7 +2,7 @@
 
 // * Type system
 
-
+// Taking types from objects. Using Left and Right and Either.
 
 // ** src/main/scala/progscala2/typesystem/valuetypes/object-types.sc
 
@@ -73,6 +73,9 @@ println( answer3 + " == " + answer2 + "? " + (answer3 == answer2))
 
 // ** src/main/scala/progscala2/typesystem/valuetypes/infix-types.sc
 
+// These provide a means of wrapping arguments.
+// And can be used in a similar way to the Option/Some/None pattern
+
 val xll1:  Int Either Double  Either String  = Left(Left(1))
 val xll2: (Int Either Double) Either String  = Left(Left(1))
 
@@ -86,7 +89,36 @@ val xl:   Int Either (Double Either String)  = Left(1)
 val xrl:  Int Either (Double Either String)  = Right(Left(3.14))
 val xrr:  Int Either (Double Either String)  = Right(Right("bar"))
 
+// *** Either, Left and Right provide an method for trapping exceptions
+
+object EitherLeftRightExample {
+
+  /**
+   * A simple method to demonstrate how to declare that a method returns an Either,
+   * and code that returns a Left or Right.
+   */
+  def divideXByY(x: Int, y: Int): Either[String, Int] = {
+    if (y == 0) Left("Dude, can't divide by 0")
+    else Right(x / y)
+  }
+  
+  // a few different ways to use Either, Left, and Right
+  println(divideXByY(1, 0))
+  println(divideXByY(1, 1))
+  divideXByY(1, 0) match {
+    case Left(s) => println("Answer: " + s)
+    case Right(i) => println("Answer: " + i)
+  }
+
+}
+
+// And call it, the code is called by the constructor.
+val eg0 = EitherLeftRightExample
+
 // ** src/main/scala/progscala2/typesystem/valuetypes/type-types.sc
+
+// Note: be sure to be in the sbt console
+
 import progscala2.typesystem.valuetypes._
 
 val s11 = new Service1
@@ -98,7 +130,12 @@ val l2: Logger = s12.logger                      // Okay
 val l11: s11.logger.type = s11.logger            // Okay
 val l12: s11.logger.type = s12.logger            // ERROR
 
+// Refer to the file
+// src/main/scala/progscala2/typesystem/valuetypes/type-projection.scala
+// This demonstrates that the type keyword has error-checking.
+
 // ** src/main/scala/progscala2/typesystem/valuetypes/type-projection.sc
+
 import progscala2.typesystem.valuetypes._
 
 val l1: Service.Log   = new ConsoleLogger    // ERROR: No Service "value"
@@ -106,6 +143,7 @@ val l2: Service1.Log  = new ConsoleLogger    // ERROR: No Service1 "value"
 val l3: Service#Log   = new ConsoleLogger    // ERROR: Type mismatch
 val l4: Service1#Log  = new ConsoleLogger    // Works!
 
+// This demonstrates that a type object defined in a class can be changed.
 
 // * Postamble
 
