@@ -1,0 +1,220 @@
+* Scala notes
+
+weaves
+
+* Programming Scala, 2nd Edition
+
+http://www.scala-lang.org/api/2.11.8/index.html
+
+SBT
+
+http://www.scala-sbt.org/0.13/docs/Commands.html
+
+Source code
+
+https://github.com/scala/scala/tree/v2.12.2
+
+** scala-mode-el and sbt-mode-el
+
+I've extended these to use SBT and to step when possible.
+
+*** ctags, etags and TAGS
+
+You need to use ctags-exuberant and add to .ctags a language definition for
+scala.
+
+** Using
+
+*** sbt 
+
+Is quite heavy to use. So it's best to work with it via a console and
+re-submit commands to it.
+
+**** Setting main
+
+For a project that has multiple mains, to just compile and run one of them use
+
+ > set mainClass in (Compile, run) := Some("progscala2.objectsystem.CommandArgs")
+ > run -i input.txt -o output.txt
+
+**** Traps and Exit
+
+sbt runs in a JVM, when an application is run, a call to System.exit(0)
+will exit the JVM of sbt. To avoid that, sbt has a trapExit setting, that
+is by default true.
+
+The run will end with:
+
+ Exception: sbt.TrapExitSecurityException thrown from the UncaughtExceptionHandler in thread "run-main-2"
+
+***** Using trapExit
+
+If you don't want the message and don't mind having to restart sbt, then
+unset the trap
+
+ > set trapExit := false
+
+but that will exit the sbt shell.
+
+***** Using fork
+
+You can achieve the same by not forking.
+
+** Scripts
+
+I've concatenated the scripts '*.sc' in each directory and put them into
+misc/. The files as merged aren't necessarily in the right order, so I need
+to correct that.
+
+Working through these, re-ordering, testing and correcting as I go.
+
+*** intro0.sc
+
+Is a basic overview, written by me from the old textbook.
+
+*** typelessdomore.sc
+
+Quick introduction to many features. Shows recursion and requirement for a
+return value type.
+
+The equals sign use for the assignment of some executable code for a
+function.
+
+*** recursion.sc
+
+Shows use of the Trampoline.
+
+*** valuetypes.sc
+
+Demonstrates dynamic typing based on object instantiation.
+
+New 'curried' method (replacing 'curry').
+
+*** toolslib.sc
+
+I don't know what this is supposed to show, but one very simple example.
+
+*** structuraltypes.sc
+
+Demonstrates how to use and notify observers. Issue with reflective calls
+requires an import.
+
+*** traits.sc
+
+Use of the with keyword in the first example.
+
+Then a sequence of examples that work with Observers. Doesn't seem to
+demonstrate any different lanuage features.
+
+*** basics.sc
+
+Functional object programming. The design idea is that you implement
+objects and pass them as configurations to a functional programming pipeline.
+
+This demonstrates how to pass functions to the map and reduce
+methods. Functions can be passed via a companion object.
+
+*** selftype.sc
+
+This demonstrates another typedef like feature. The self alias allows one
+to refer to the object itself (like this).
+
+There's a second example (the cake pattern) that demonstrates this to code
+against abstract interfaces.
+
+*** safeseq.sc
+
+This demonstrates a new Seq type.
+
+*** rounding.sc
+
+This is basic. Demonstrates loops, for-yield, enumerations.
+
+Illustrates StdLogging.
+
+*** linearization.sc
+
+This is an explanation of Linearization. The order in which objects are
+constructed and the order in which in they are carried out.
+
+https://www.scala-lang.org/files/archive/spec/2.11/05-classes-and-objects.html#definition:-linearization
+
+*** process.sc
+
+How to invoke operating system methods.
+
+http://www.scala-lang.org/api/2.11.8/index.html#scala.sys.process.package
+
+Instances of the java classes java.io.File and java.net.URL can both be
+used directly as input to other processes, and java.io.File can be used as
+output as well. One can even pipe one to the other directly without any
+intervening process, though that's not a design goal or recommended usage.
+
+*** overrides.sc
+
+How to side-step issues with instantiation in a base trait (or class) using lazy.
+
+Useful example of a case class in here. This is the explanation. A case
+class has a companion object defined with it that supports an apply and an
+unapply method. A copy() method is added to.
+
+And of course, it overrides the scala.AnyRef methods too.
+
+https://www.scala-lang.org/files/archive/spec/2.11/05-classes-and-objects.html#case-classes
+
+object c {
+  def apply[tps](ps1)…(psn): c[tps] = new c[Ts](xs1)…(xsn)
+  def unapply[tps](x: c[tps]) =
+    if (x eq null) scala.None
+    else scala.Some(x.xs11,…,x.xs1k)
+}
+
+class Expr
+case class Var   (x: String)          extends Expr
+case class Apply (f: Expr, e: Expr)   extends Expr
+case class Lambda(x: String, e: Expr) extends Expr
+
+type Env = String => Value
+case class Value(e: Expr, env: Env)
+
+def eval(e: Expr, env: Env): Value = e match {
+  case Var (x) =>
+    env(x)
+  case Apply(f, g) =>
+    val Value(Lambda (x, e1), env1) = eval(f, env)
+    val v = eval(g, env)
+    eval (e1, (y => if (y == x) v else env1(y)))
+  case Lambda(_, _) =>
+    Value(e, env)
+}
+
+*** patternmatching.sc
+
+This is illustrates some useful constructs for using regular expressions.
+
+A nice recursive pair processing construct.
+
+http.sc demonstrates a method dispatcher based on class type.
+
+match-types.sc and match-types2 don't work because of the Java class
+erasure for generics, but it is implemented in a workable way in types2.
+
+match-deep.sc is a use of wild-cards in a match for deeper structures.
+
+
+
+* Postamble
+
+** This file's Emacs file variables
+
+[  Local Variables: ]
+[  mode:text ]
+[  mode:outline-minor ]
+[  mode:auto-fill ]
+[  fill-column: 75 ]
+[  coding: iso-8859-1-unix ]
+[  comment-column:50 ]
+[  comment-start: "[  "  ]
+[  comment-end:"]" ]
+[  End: ]
+

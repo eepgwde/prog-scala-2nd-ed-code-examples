@@ -2,6 +2,26 @@
 
 // * Introductory examples
 
+// ** src/main/scala/progscala2/rounding/generator.sc
+
+for (i <- 1 to 10) println(i)
+
+// ** src/main/scala/progscala2/rounding/basic-for.sc
+
+val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
+                     "Scottish Terrier", "Great Dane", "Portuguese Water Dog")
+
+for (breed <- dogBreeds)
+  println(breed)
+
+// ** src/main/scala/progscala2/rounding/guard-for.sc
+
+val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
+                     "Scottish Terrier", "Great Dane", "Portuguese Water Dog")
+for (breed <- dogBreeds
+  if breed.contains("Terrier")
+) println(breed)
+
 // ** src/main/scala/progscala2/rounding/yielding-for.sc
 
 val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
@@ -10,6 +30,15 @@ val filteredBreeds = for {
   breed <- dogBreeds
   if breed.contains("Terrier") && !breed.startsWith("Yorkshire")
 } yield breed
+
+// ** src/main/scala/progscala2/rounding/scoped-for.sc
+
+val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
+                     "Scottish Terrier", "Great Dane", "Portuguese Water Dog")
+for {
+  breed <- dogBreeds
+  upcasedBreed = breed.toUpperCase()
+} println(upcasedBreed)
 
 // ** src/main/scala/progscala2/patternmatching/scoped-option-for.sc
 
@@ -29,13 +58,21 @@ for {
   upcasedBreed = breed.toUpperCase()
 } println(upcasedBreed)
 
-// ** src/main/scala/progscala2/rounding/basic-for.sc
+// *** Note
+// Use of Some and None, the children of Option. It is an alternative to returning and
+// checking for null.
 
-val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
-                     "Scottish Terrier", "Great Dane", "Portuguese Water Dog")
+def toInt(in: String): Option[Int] = {
+    try {
+        Some(Integer.parseInt(in.trim))
+    } catch {
+        case e: NumberFormatException => None
+    }
+}
 
-for (breed <- dogBreeds)
-  println(breed)
+toInt("2").isDefined
+
+toInt("2,0").isDefined
 
 // ** src/main/scala/progscala2/rounding/no-dot-better.sc
 
@@ -49,6 +86,9 @@ object WeekDay extends Enumeration {
   type WeekDay = Value
   val Mon, Tue, Wed, Thu, Fri, Sat, Sun = Value
 }
+
+// This is useful, it exposes the internal types and enumerations of the WeekDay
+// class. 
 import WeekDay._
 
 def isWorkingDay(d: WeekDay) = ! (d == Sat || d == Sun)
@@ -77,8 +117,33 @@ object ExpensiveResource {
   lazy val resource: Int = init()  
   def init(): Int = { 
     // do something expensive
+    println("initializing: wait one second")
+    Thread.sleep(1000)
     0
   }
+}
+
+val r0 = ExpensiveResource
+
+r0.resource
+
+// ** src/main/scala/progscala2/rounding/while.sc
+
+// WARNING: This script runs for a LOOOONG time!
+import java.util.Calendar
+
+def isFridayThirteen(cal: Calendar): Boolean = {
+  val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+  val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH)
+
+  // Scala returns the result of the last expression in a method
+  (dayOfWeek == Calendar.FRIDAY) && (dayOfMonth == 13)
+}
+
+while (!isFridayThirteen(Calendar.getInstance())) {
+  println("Today isn't Friday the 13th. Lame.")
+  // sleep for a day
+  Thread.sleep(86400000)
 }
 
 // ** src/main/scala/progscala2/rounding/do-while.sc
@@ -115,10 +180,6 @@ def isTerrier(b: Breed) = b.toString.endsWith("Terrier")
 println("\nTerriers Again??")
 Breed.values filter isTerrier foreach println
 
-// ** src/main/scala/progscala2/rounding/generator.sc
-
-for (i <- 1 to 10) println(i)
-
 // ** src/main/scala/progscala2/rounding/double-guard-for.sc
 
 val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
@@ -133,52 +194,6 @@ for (breed <- dogBreeds
   if breed.contains("Terrier") && !breed.startsWith("Yorkshire")
 ) println(breed)
 
-// ** src/main/scala/progscala2/rounding/assigned-if.sc
-
-val configFile = new java.io.File("somefile.txt")
-
-val configFilePath = if (configFile.exists()) {
-  configFile.getAbsolutePath()
-} else {
-  configFile.createNewFile()
-  configFile.getAbsolutePath()
-}
-
-// ** src/main/scala/progscala2/rounding/while.sc
-// WARNING: This script runs for a LOOOONG time!
-import java.util.Calendar
-
-def isFridayThirteen(cal: Calendar): Boolean = {
-  val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
-  val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH)
-
-  // Scala returns the result of the last expression in a method
-  (dayOfWeek == Calendar.FRIDAY) && (dayOfMonth == 13)
-}
-
-while (!isFridayThirteen(Calendar.getInstance())) {
-  println("Today isn't Friday the 13th. Lame.")
-  // sleep for a day
-  Thread.sleep(86400000)
-}
-
-// ** src/main/scala/progscala2/rounding/scoped-for.sc
-
-val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
-                     "Scottish Terrier", "Great Dane", "Portuguese Water Dog")
-for {
-  breed <- dogBreeds
-  upcasedBreed = breed.toUpperCase()
-} println(upcasedBreed)
-
-// ** src/main/scala/progscala2/rounding/guard-for.sc
-
-val dogBreeds = List("Doberman", "Yorkshire Terrier", "Dachshund",
-                     "Scottish Terrier", "Great Dane", "Portuguese Water Dog")
-for (breed <- dogBreeds
-  if breed.contains("Terrier")
-) println(breed)
-
 // ** src/main/scala/progscala2/rounding/if.sc
 
 if (2 + 2 == 5) {
@@ -190,6 +205,17 @@ if (2 + 2 == 5) {
 }
 
 // BEGIN SERVICE
+// ** src/main/scala/progscala2/rounding/assigned-if.sc
+
+val configFile = new java.io.File("somefile.txt")
+
+val configFilePath = if (configFile.exists()) {
+  configFile.getAbsolutePath()
+} else {
+  configFile.createNewFile()
+  configFile.getAbsolutePath()
+}
+
 // ** src/main/scala/progscala2/rounding/traits.sc
 
 class ServiceImportante(name: String) {
@@ -229,6 +255,8 @@ val service2 = new ServiceImportante("dos") with StdoutLogging {
 (1 to 3) foreach (i => println(s"Result: ${service2.work(i)}"))
 
 // END MIXED
+
+
 
 // * Postamble
 

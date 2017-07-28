@@ -78,6 +78,8 @@ s.foreach(c => print(s"$c-"))
 
 // ** src/main/scala/progscala2/typelessdomore/semicolon-example.sc
 
+// *** Quirk of function definition the Unit=void return type.
+
 // Trailing equals sign indicates more code on the next line.
 def equalsign(s: String) =
   println("equalsign: " + s)
@@ -86,6 +88,28 @@ def equalsign(s: String) =
 def equalsign2(s: String) = {
   println("equalsign2: " + s)
 }
+
+// Trailing opening curly brace indicates more code on the next line.
+def equalsign3(s: String) println("equalsign3: " + s) // Error
+
+def equalsign3(s: String) { println("equalsign3: " + s) } 
+// But type inference is now "void", it is now an unapplied function.
+
+equalsign3("nothing")
+
+// compare the signatures like this
+
+equalsign _
+equalsign2 _
+equalsign3 _
+
+// **** Note
+// Tricky one to track down. All the functions have the same signature, but
+// equalsign3 doesn't run the code.
+
+/// http://docs.scala-lang.org/overviews/reflection/overview.html
+
+// *** Line continuations and no need for semi-colon.
 
 // Trailing commas, periods, and operators indicate more code on the next line.
 def commas(s1: String,

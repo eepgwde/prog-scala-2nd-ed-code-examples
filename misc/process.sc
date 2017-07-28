@@ -1,15 +1,22 @@
 // * @author weaves
 
-// * Introductory examples
+// * Interacting with system process
 
 // ** src/main/scala/progscala2/concurrency/process/processes.sc
 import scala.sys.process._
+
 import scala.language.postfixOps
+
 import java.net.URL
 import java.io.File
 
-"ls -l src".!
-Seq("ls", "-l", "src").!!
+// Here s1 captures the error code.
+
+val s1 = "ls -l src".!
+
+// Here s0 captures the command output.
+
+val s0 = Seq("ls", "-l", "src").!!
 
 // Build a process to open a URL, redirect the output to "grep $filter", 
 // and append the output to file (not overwrite it).
@@ -21,9 +28,6 @@ def countLines(fileName: String) = s"ls -l $fileName" #&& s"wc -l $fileName"
 
 findURL("http://scala-lang.org", "scala") !
 countLines("scala.txt") !
-findURL("http://scala-lang.org", "scala") !
-countLines("scala.txt") !
-
 
 
 // * Postamble

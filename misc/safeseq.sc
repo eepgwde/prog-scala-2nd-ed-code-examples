@@ -1,6 +1,8 @@
 // * @author weaves
 
-// * Introductory examples
+// * Safe (immutable) sequences
+
+// This is an extra import that over-rides the default Seq.
 
 // ** src/main/scala/progscala2/collections/safeseq/safeseq.sc
 

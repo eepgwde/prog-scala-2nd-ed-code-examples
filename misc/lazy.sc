@@ -1,6 +1,9 @@
 // * @author weaves
 
-// * Introductory examples
+// * Stream is a form of Lazy List
+
+// And is due to be deprecated.
+// The Stream implemented in Java is similar.
 
 // ** src/main/scala/progscala2/typesystem/lazy/lazy-ints.sc
 

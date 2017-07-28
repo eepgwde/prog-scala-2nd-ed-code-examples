@@ -1,6 +1,11 @@
 // * @author weaves
 
-// * Introductory examples
+// * Functors
+
+// This uses
+// src/main/scala/progscala2/typesystem/typelambdas/Functor.scala
+
+//
 
 // ** src/main/scala/progscala2/typesystem/typelambdas/Functor.sc
 import scala.language.higherKinds

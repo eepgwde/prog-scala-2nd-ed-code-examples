@@ -2,25 +2,6 @@
 
 // * Introductory examples
 
-// ** src/main/scala/progscala2/patternmatching/match-seq-unapplySeq.sc
-
-val nonEmptyList   = List(1, 2, 3, 4, 5)                             // <1>
-val emptyList      = Nil
-val nonEmptyMap    = Map("one" -> 1, "two" -> 2, "three" -> 3)
-
-// Process pairs
-def windows[T](seq: Seq[T]): String = seq match {
-  case Seq(head1, head2, _*) =>                                      // <2>
-    s"($head1, $head2), " + windows(seq.tail)                        // <3>
-  case Seq(head, _*) => 
-    s"($head, _), " + windows(seq.tail)                              // <4>
-  case Nil => "Nil"
-}
-
-for (seq <- Seq(nonEmptyList, emptyList, nonEmptyMap.toSeq)) {
-  println(windows(seq))
-}
-
 // ** src/main/scala/progscala2/patternmatching/scoped-option-for.sc
 
 val dogBreeds = Seq(Some("Doberman"), None, Some("Yorkshire Terrier"), 
@@ -71,19 +52,22 @@ for (item <- catalog) {
   }
 }
 
-// ** src/main/scala/progscala2/patternmatching/match-variable3.sc
+// ** src/main/scala/progscala2/patternmatching/regex-assignments.sc
 
-for {
-  x <- Seq(1, 2, 2.7, "one", "two", 'four)
-} {
-  val str = x match {
-    case _: Int | _: Double => "a number: "+x
-    case "one"              => "string one"
-    case _: String          => "other string: "+x
-    case _                  => "unexpected value: " + x
-  }
-  println(str)
-}
+val cols = """\*|[\w, ]+"""
+val table = """\w+"""
+val others = """.*"""
+val selectRE = 
+  s"""SELECT\\s*(DISTINCT)?\\s+($cols)\\s*FROM\\s+($table)\\s*($others)?;""".r
+
+val selectRE(distinct1, cols1, table1, otherClauses) = 
+  "SELECT DISTINCT * FROM atable;"
+val selectRE(distinct2, cols2, table2, otherClauses) = 
+  "SELECT col1, col2 FROM atable;"
+val selectRE(distinct3, cols3, table3, otherClauses) = 
+  "SELECT DISTINCT col1, col2 FROM atable;"
+val selectRE(distinct4, cols4, table4, otherClauses) = 
+  "SELECT DISTINCT col1, col2 FROM atable WHERE col1 = 'foo';"
 
 // ** src/main/scala/progscala2/patternmatching/http.sc
 
@@ -124,6 +108,23 @@ val methods = Seq(
 
 methods foreach (method => println(handle(method)))
 
+// ** src/main/scala/progscala2/patternmatching/match-variable.sc
+
+for {
+  x <- Seq(1, 2, 2.7, "one", "two", 'four)                           // <1>
+} {
+  val str = x match {                                                // <2>
+    case 1          => "int 1"                                       // <3>
+    case i: Int     => "other int: "+i                               // <4>
+    case d: Double  => "a double: "+x                                // <5>
+    case "one"      => "string one"                                  // <6>
+    case s: String  => "other string: "+s                            // <7>
+    case unexpected => "unexpected value: " + unexpected             // <8>
+  }
+  println(str)                                                       // <9>
+}
+
+
 // ** src/main/scala/progscala2/patternmatching/match-variable2.sc
 
 for {
@@ -140,6 +141,20 @@ for {
   println(str)
 }
 
+
+// ** src/main/scala/progscala2/patternmatching/match-variable3.sc
+
+for {
+  x <- Seq(1, 2, 2.7, "one", "two", 'four)
+} {
+  val str = x match {
+    case _: Int | _: Double => "a number: "+x
+    case "one"              => "string one"
+    case _: String          => "other string: "+x
+    case _                  => "unexpected value: " + x
+  }
+  println(str)
+}
 
 // ** src/main/scala/progscala2/patternmatching/match-list.sc
 
@@ -163,6 +178,33 @@ for {
   case _                 => ("unknown!", x)
 })
 
+// <console>:27: warning: non-variable type argument Double in type pattern scala.collection.immutable.Seq[Double] (the underlying of progscala2.collections.safeseq.Seq[Double]) is unchecked since it is eliminated by erasure
+//          case seqd: Seq[Double] => ("seq double", seqd)
+//                     ^
+
+// *** Note
+// This doesn't work. You need to do something like the following.
+
+// ** src/main/scala/progscala2/patternmatching/match-types2.sc
+
+def doSeqMatch[T](seq: Seq[T]): String = seq match {
+  case Nil => "Nothing"
+  case head +: _ => head match {
+    case _ : Double => "Double"
+    case _ : String => "String"
+    case _ => "Unmatched seq element"
+  }
+}
+
+for {
+  x <- Seq(List(5.5,5.6,5.7), List("a", "b"), Nil) 
+} yield {
+  x match {
+    case seq: Seq[_] => (s"seq ${doSeqMatch(seq)}", seq)
+    case _           => ("unknown!", x)
+  }
+}
+
 // ** src/main/scala/progscala2/patternmatching/match-seq-parens.sc
 
 val nonEmptySeq    = Seq(1, 2, 3, 4, 5)
@@ -177,6 +219,9 @@ def seqToString2[T](seq: Seq[T]): String = seq match {
 for (seq <- Seq(nonEmptySeq, emptySeq, nonEmptyMap.toSeq)) {
   println(seqToString2(seq))
 }
+
+// *** Note
+// This won't work if you've instantiated the immutable Seq types.
 
 // ** src/main/scala/progscala2/patternmatching/match-surprise.sc
 
@@ -193,23 +238,6 @@ def checkY(y: Int) = {
 }
 
 checkY(100)
-
-// ** src/main/scala/progscala2/patternmatching/regex-assignments.sc
-
-val cols = """\*|[\w, ]+"""
-val table = """\w+"""
-val others = """.*"""
-val selectRE = 
-  s"""SELECT\\s*(DISTINCT)?\\s+($cols)\\s*FROM\\s+($table)\\s*($others)?;""".r
-
-val selectRE(distinct1, cols1, table1, otherClauses) = 
-  "SELECT DISTINCT * FROM atable;"
-val selectRE(distinct2, cols2, table2, otherClauses) = 
-  "SELECT col1, col2 FROM atable;"
-val selectRE(distinct3, cols3, table3, otherClauses) = 
-  "SELECT DISTINCT col1, col2 FROM atable;"
-val selectRE(distinct4, cols4, table4, otherClauses) = 
-  "SELECT DISTINCT col1, col2 FROM atable WHERE col1 = 'foo';"
 
 // ** src/main/scala/progscala2/patternmatching/match-seq.sc
 
@@ -233,6 +261,41 @@ for (seq <- Seq(                                                     // <8>
   println(seqToString(seq))
 }
 
+// ** src/main/scala/progscala2/patternmatching/match-seq-unapplySeq.sc
+
+val nonEmptyList   = List(1, 2, 3, 4, 5)                             // <1>
+val emptyList      = Nil
+val nonEmptyMap    = Map("one" -> 1, "two" -> 2, "three" -> 3)
+
+// Process pairs
+def windows[T](seq: Seq[T]): String = seq match {
+  case Seq(head1, head2, _*) =>                                      // <2>
+    s"($head1, $head2), " + windows(seq.tail)                        // <3>
+  case Seq(head, _*) => 
+    s"($head, _), " + windows(seq.tail)                              // <4>
+  case Nil => "Nil"
+}
+
+for (seq <- Seq(nonEmptyList, emptyList, nonEmptyMap.toSeq)) {
+  println(windows(seq))
+}
+
+// ** src/main/scala/progscala2/patternmatching/match-reverse-seq.sc
+// Compare to match-seq.sc
+
+val nonEmptyList   = List(1, 2, 3, 4, 5)
+val nonEmptyVector = Vector(1, 2, 3, 4, 5)
+val nonEmptyMap    = Map("one" -> 1, "two" -> 2, "three" -> 3)
+
+def reverseSeqToString[T](l: Seq[T]): String = l match {
+  case prefix :+ end => reverseSeqToString(prefix) + s" :+ $end"
+  case Nil => "Nil"
+}
+
+for (seq <- Seq(nonEmptyList, nonEmptyVector, nonEmptyMap.toSeq)) {
+  println(reverseSeqToString(seq))
+}
+
 // ** src/main/scala/progscala2/patternmatching/match-deep.sc
 
 // Simplistic address type. Using all strings is questionable, too.
@@ -250,15 +313,6 @@ for (person <- Seq(alice, bob, charlie)) {
       println("Hi Bob!")
     case Person(name, age, _) => 
       println(s"Who are you, $age year-old person named $name?")
-  }
-}
-
-// ** src/main/scala/progscala2/patternmatching/match-guard.sc
-
-for (i <- Seq(1,2,3,4)) {
-  i match {
-    case _ if i%2 == 0 => println(s"even: $i")                       // <1>
-    case _             => println(s"odd:  $i")                       // <2>
   }
 }
 
@@ -281,6 +335,15 @@ for (person <- Seq(alice, bob, charlie)) {
   }
 }
 
+// ** src/main/scala/progscala2/patternmatching/match-guard.sc
+
+for (i <- Seq(1,2,3,4)) {
+  i match {
+    case _ if i%2 == 0 => println(s"even: $i")                       // <1>
+    case _             => println(s"odd:  $i")                       // <2>
+  }
+}
+
 // ** src/main/scala/progscala2/patternmatching/match-seq-without-unapplySeq.sc
 
 val nonEmptyList   = List(1, 2, 3, 4, 5)
@@ -298,26 +361,6 @@ for (seq <- Seq(nonEmptyList, emptyList, nonEmptyMap.toSeq)) {
   println(windows2(seq))
 }
 
-// ** src/main/scala/progscala2/patternmatching/match-types2.sc
-
-def doSeqMatch[T](seq: Seq[T]): String = seq match {
-  case Nil => "Nothing"
-  case head +: _ => head match {
-    case _ : Double => "Double"
-    case _ : String => "String"
-    case _ => "Unmatched seq element"
-  }
-}
-
-for {
-  x <- Seq(List(5.5,5.6,5.7), List("a", "b"), Nil) 
-} yield {
-  x match {
-    case seq: Seq[_] => (s"seq ${doSeqMatch(seq)}", seq)
-    case _           => ("unknown!", x)
-  }
-}
-
 // ** src/main/scala/progscala2/patternmatching/match-surprise-fix.sc
 
 def checkY(y: Int) = {
@@ -332,23 +375,6 @@ def checkY(y: Int) = {
   }
 }
 checkY(100)
-
-// ** src/main/scala/progscala2/patternmatching/match-variable.sc
-
-for {
-  x <- Seq(1, 2, 2.7, "one", "two", 'four)                           // <1>
-} {
-  val str = x match {                                                // <2>
-    case 1          => "int 1"                                       // <3>
-    case i: Int     => "other int: "+i                               // <4>
-    case d: Double  => "a double: "+x                                // <5>
-    case "one"      => "string one"                                  // <6>
-    case s: String  => "other string: "+s                            // <7>
-    case unexpected => "unexpected value: " + unexpected             // <8>
-  }
-  println(str)                                                       // <9>
-}
-
 
 // ** src/main/scala/progscala2/patternmatching/match-boolean.sc
 
@@ -366,16 +392,6 @@ for (bool <- bools) {
   println("Got " + which)
 }
 
-// ** src/main/scala/progscala2/patternmatching/match-deep-tuple.sc
-
-val itemsCosts = Seq(("Pencil", 0.52), ("Paper", 1.35), ("Notebook", 2.43))
-val itemsCostsIndices = itemsCosts.zipWithIndex
-for (itemCostIndex <- itemsCostsIndices) { 
-  itemCostIndex match {
-    case ((item, cost), index) => println(s"$index: $item costs $cost each")
-  }
-}
-
 // ** src/main/scala/progscala2/patternmatching/match-tuple.sc
 
 val langs = Seq(
@@ -388,6 +404,16 @@ for (tuple <- langs) {
     case ("Scala", _, _) => println("Found Scala")                   // <1>
     case (lang, first, last) =>                                      // <2>
       println(s"Found other language: $lang ($first, $last)")
+  }
+}
+
+// ** src/main/scala/progscala2/patternmatching/match-deep-tuple.sc
+
+val itemsCosts = Seq(("Pencil", 0.52), ("Paper", 1.35), ("Notebook", 2.43))
+val itemsCostsIndices = itemsCosts.zipWithIndex
+for (itemCostIndex <- itemsCostsIndices) { 
+  itemCostIndex match {
+    case ((item, cost), index) => println(s"$index: $item costs $cost each")
   }
 }
 
@@ -455,22 +481,6 @@ pas map { tup =>
 pas map {
   case (Person(name, age), Address(street, city, country)) =>
     s"$name (age: $age) lives at $street, $city, in $country"
-}
-
-// ** src/main/scala/progscala2/patternmatching/match-reverse-seq.sc
-// Compare to match-seq.sc
-
-val nonEmptyList   = List(1, 2, 3, 4, 5)
-val nonEmptyVector = Vector(1, 2, 3, 4, 5)
-val nonEmptyMap    = Map("one" -> 1, "two" -> 2, "three" -> 3)
-
-def reverseSeqToString[T](l: Seq[T]): String = l match {
-  case prefix :+ end => reverseSeqToString(prefix) + s" :+ $end"
-  case Nil => "Nil"
-}
-
-for (seq <- Seq(nonEmptyList, nonEmptyVector, nonEmptyMap.toSeq)) {
-  println(reverseSeqToString(seq))
 }
 
 // * Postamble
