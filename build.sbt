@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka"      %% "akka-actor"      % "2.3.4",
   "com.typesafe.akka"      %% "akka-slf4j"      % "2.3.4",
   "ch.qos.logback"          % "logback-classic" % "1.1.2",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
   "org.scalaz"             %% "scalaz-core"     % "7.1.0",
   "org.scalacheck"         %% "scalacheck"      % "1.12.5" % "test",
   "org.scalatest"          %% "scalatest"       % "2.2.4"  % "test",
@@ -26,7 +27,7 @@ libraryDependencies ++= Seq(
 scalacOptions ++= Seq(
   "-encoding", "UTF-8", "-optimise",
   "-deprecation", "-unchecked", "-feature", "-Xlint",
-  "-Ywarn-infer-any", 
+  "-Ywarn-infer-any", "-Yinline-warnings",
 // Nice, but hard to eliminate these warnings: "-Ywarn-value-discard")
   "-language:experimental.macros")
 
@@ -35,4 +36,5 @@ javacOptions  ++= Seq(
 
 // Enable improved incremental compilation feature in 2.11.X.
 // see http://www.scala-lang.org/news/2.11.1
+
 incOptions := incOptions.value.withNameHashing(true)

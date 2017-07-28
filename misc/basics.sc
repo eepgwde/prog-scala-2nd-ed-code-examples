@@ -1,6 +1,13 @@
 // * @author weaves
 
-// * Introductory examples
+// * Functional programming basics
+
+// ** src/main/scala/progscala2/fp/basics/hofs-example.sc
+
+// This multiplies the even numbers by 2 and then multiplies them together.
+
+(1 to 10) filter (_ % 2 == 0) map (_ * 2) reduce (_ * _)
+
 
 // ** src/main/scala/progscala2/fp/basics/hofs-closure-example.sc
 
@@ -9,9 +16,14 @@ val multiplier = (i: Int) => i * factor
 
 (1 to 10) filter (_ % 2 == 0) map multiplier reduce (_ * _)
 
+// *** Note
+// This does the same as the prior example, but uses a lambda parameter by factor.
+
 factor = 3
+
 (1 to 10) filter (_ % 2 == 0) map multiplier reduce (_ * _)
 
+// This demonstrates how change the factor 
 
 // ** src/main/scala/progscala2/fp/basics/hofs-closure3-example.sc
 
@@ -26,6 +38,7 @@ object Multiplier {
 Multiplier.factor = 3
 (1 to 10) filter (_ % 2 == 0) map Multiplier.multiplier reduce (_ * _)
 
+// This demonstrates how to use a companion object to achieve the same.
 
 // ** src/main/scala/progscala2/fp/basics/hofs-closure2-example.sc
 
@@ -41,10 +54,7 @@ def m2: Int => Int = {
 
 m1(m2)
 
-// ** src/main/scala/progscala2/fp/basics/hofs-example.sc
-
-(1 to 10) filter (_ % 2 == 0) map (_ * 2) reduce (_ * _)
-
+// This demonstrates how to pass how to pass a named function onto the a wrapper.
 
 // * Postamble
 

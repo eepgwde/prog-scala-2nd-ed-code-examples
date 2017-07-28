@@ -8,6 +8,9 @@ trait M extends Any {
   def m = print("M ")
 }
 
+// warning: side-effecting nullary methods are discouraged: suggest defining as `def m()` instead
+//          override def m = { print("USPhoneNumber "); super.m }
+
 trait Digitizer extends Any with M {
   override def m = { print("Digitizer "); super.m }
 
@@ -21,7 +24,7 @@ trait Formatter extends Any with M {
     s"($areaCode) $exchange-$subnumber"
 }
 
-// Split "exetnds AnyVal" to tell the REPL the expression crosses 2 lines:
+// Split "extends AnyVal" to tell the REPL the expression crosses 2 lines:
 class USPhoneNumber(val s: String) extends 
     AnyVal with Digitizer with Formatter{
   override def m = { print("USPhoneNumber "); super.m }
@@ -38,6 +41,63 @@ class USPhoneNumber(val s: String) extends
 val number = new USPhoneNumber("987-654-3210")
 println("Call m:")
 number.m
+
+// ** src/main/scala/progscala2/objectsystem/linearization/linearization1.sc
+
+class C1 {
+  def m = print("C1 ")
+}
+
+trait T1 extends C1 {
+  override def m = { print("T1 "); super.m }
+}
+
+trait T2 extends C1 {
+  override def m = { print("T2 "); super.m }
+}
+
+trait T3 extends C1 {
+  override def m = { print("T3 "); super.m }
+}
+
+class C2 extends T1 with T2 with T3 {
+  override def m = { print("C2 "); super.m }
+}
+
+val c2 = new C2
+c2.m
+
+// *** Note
+// The result here is  C2 T3 T2 T1 C1 which suggests it seems to be an implementation
+// of the C++ virtual inheritance.
+
+// ** src/main/scala/progscala2/objectsystem/linearization/linearization2.sc
+
+class C1 {
+  print("C1 ")
+}
+
+trait T1 extends C1 {
+  print("T1 ")
+}
+
+trait T2 extends C1 {
+  print("T2 ")
+}
+
+trait T3 extends C1 {
+  print("T3 ")
+}
+
+class C2 extends T1 with T2 with T3 {
+  println("C2 ")
+}
+
+val c2 = new C2
+
+// *** Note
+// The result here is  C1 T1 T2 T3 C2 
+// which is constructed in order from the base class.
 
 // ** src/main/scala/progscala2/objectsystem/linearization/linearization3.sc
 
@@ -104,55 +164,6 @@ calcLinearization(new T2 {}, "T2 ")
 calcLinearization(new T1 {}, "T1 ")
 calcLinearization(new C2A, "C2A")
 calcLinearization(new C1, "C1 ")
-
-// ** src/main/scala/progscala2/objectsystem/linearization/linearization1.sc
-
-class C1 {
-  def m = print("C1 ")
-}
-
-trait T1 extends C1 {
-  override def m = { print("T1 "); super.m }
-}
-
-trait T2 extends C1 {
-  override def m = { print("T2 "); super.m }
-}
-
-trait T3 extends C1 {
-  override def m = { print("T3 "); super.m }
-}
-
-class C2 extends T1 with T2 with T3 {
-  override def m = { print("C2 "); super.m }
-}
-
-val c2 = new C2
-c2.m
-
-// ** src/main/scala/progscala2/objectsystem/linearization/linearization2.sc
-
-class C1 {
-  print("C1 ")
-}
-
-trait T1 extends C1 {
-  print("T1 ")
-}
-
-trait T2 extends C1 {
-  print("T2 ")
-}
-
-trait T3 extends C1 {
-  print("T3 ")
-}
-
-class C2 extends T1 with T2 with T3 {
-  println("C2 ")
-}
-
-val c2 = new C2
 
 // * Postamble
 

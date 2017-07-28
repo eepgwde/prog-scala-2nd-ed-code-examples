@@ -10,6 +10,10 @@ def printMessage(msg: Message) = println(msg)
 
 printMessage(new Message("This works fine with the REPL"))
 
+// *** Note
+
+// I don't know what this aims to illustrate.
+
 // * Postamble
 
 // The following are the file variables.
