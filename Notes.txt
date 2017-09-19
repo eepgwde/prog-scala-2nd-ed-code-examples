@@ -233,6 +233,16 @@ There's a toType2() that uses an implicit, it returns the same as toType.
 
 toTypeRefInfo() demonstrates that typeOf can return more information.
 
+* Essential Scala
+
+Assorted notes from
+
+http://twitter.github.io/effectivescala/
+
+** Variance
+
+Good explanation.
+
 
 * Postamble
 
