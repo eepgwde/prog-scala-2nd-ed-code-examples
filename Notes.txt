@@ -201,6 +201,37 @@ erasure for generics, but it is implemented in a workable way in types2.
 
 match-deep.sc is a use of wild-cards in a match for deeper structures.
 
+match-surprise.sc there is an important trick here: using back-ticks to
+access the `y` parameter.
+
+match-deep2.sc demonstrates how to use another assignment operator @
+(probably a label), to set up a "p" variable after the matching, the
+variable can then be used in the following block.
+
+*** metaprogramming.sc
+
+Mostly about the reflective features of Scala and Java.
+
+(There's a name-clash in reflect.sc trait T with later use of T for type.)
+
+match-type-types.sc shows how to compare types
+programmatically. Especially, the types of generics. Similar to the
+construct in a C++ template to record the types used.
+
+This warning pops up.
+
+<console>:16: warning: a type was inferred to be `AnyVal`; this may indicate a programming error.
+       toType(Seq(1, true, 3.14))
+
+The Type class supports test operators
+
+ toType(1) <:< typeOf[AnyVal]           // => true
+
+There is no >:> you have to turn the arguments around.
+
+There's a toType2() that uses an implicit, it returns the same as toType.
+
+toTypeRefInfo() demonstrates that typeOf can return more information.
 
 
 * Postamble
