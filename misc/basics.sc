@@ -54,7 +54,7 @@ def m2: Int => Int = {
 
 m1(m2)
 
-// This demonstrates how to pass how to pass a named function onto the a wrapper.
+// This demonstrates how to pass how to pass a named function onto a wrapper.
 
 // * Postamble
 

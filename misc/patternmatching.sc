@@ -230,7 +230,7 @@ def checkY(y: Int) = {
     x <- Seq(99, 100, 101)
   } {
     val str = x match {
-      case y => "found y!"
+      case `y` => "found y!"
       case i: Int => "int: "+i
     }
     println(str)
@@ -238,6 +238,20 @@ def checkY(y: Int) = {
 }
 
 checkY(100)
+
+// *** Note
+// If you don't enclose the y in the case statement with back-ticks.
+// <console>:16: warning: patterns after a variable pattern cannot match (SLS 8.1.1)
+// If you intended to match against parameter y of method checkY, you must use
+// backticks, like://  case `y` =>
+//              case y => "found y!"
+//                   ^
+// <console>:17: warning: unreachable code due to variable pattern 'y' on line 16
+//              case i: Int => "int: "+i
+//                                    ^
+// <console>:17: warning: unreachable code
+//              case i: Int => "int: "+i
+
 
 // ** src/main/scala/progscala2/patternmatching/match-seq.sc
 
@@ -261,6 +275,22 @@ for (seq <- Seq(                                                     // <8>
   println(seqToString(seq))
 }
 
+// ** src/main/scala/progscala2/patternmatching/match-reverse-seq.sc
+// Compare to match-seq.sc
+
+val nonEmptyList   = List(1, 2, 3, 4, 5)
+val nonEmptyVector = Vector(1, 2, 3, 4, 5)
+val nonEmptyMap    = Map("one" -> 1, "two" -> 2, "three" -> 3)
+
+def reverseSeqToString[T](l: Seq[T]): String = l match {
+  case prefix :+ end => reverseSeqToString(prefix) + s" :+ $end"
+  case Nil => "Nil"
+}
+
+for (seq <- Seq(nonEmptyList, nonEmptyVector, nonEmptyMap.toSeq)) {
+  println(reverseSeqToString(seq))
+}
+
 // ** src/main/scala/progscala2/patternmatching/match-seq-unapplySeq.sc
 
 val nonEmptyList   = List(1, 2, 3, 4, 5)                             // <1>
@@ -278,22 +308,6 @@ def windows[T](seq: Seq[T]): String = seq match {
 
 for (seq <- Seq(nonEmptyList, emptyList, nonEmptyMap.toSeq)) {
   println(windows(seq))
-}
-
-// ** src/main/scala/progscala2/patternmatching/match-reverse-seq.sc
-// Compare to match-seq.sc
-
-val nonEmptyList   = List(1, 2, 3, 4, 5)
-val nonEmptyVector = Vector(1, 2, 3, 4, 5)
-val nonEmptyMap    = Map("one" -> 1, "two" -> 2, "three" -> 3)
-
-def reverseSeqToString[T](l: Seq[T]): String = l match {
-  case prefix :+ end => reverseSeqToString(prefix) + s" :+ $end"
-  case Nil => "Nil"
-}
-
-for (seq <- Seq(nonEmptyList, nonEmptyVector, nonEmptyMap.toSeq)) {
-  println(reverseSeqToString(seq))
 }
 
 // ** src/main/scala/progscala2/patternmatching/match-deep.sc
@@ -334,6 +348,9 @@ for (person <- Seq(alice, bob, charlie)) {
       println(s"Who are you, $age year-old person named $name? $p")
   }
 }
+
+// *** Note
+// The 
 
 // ** src/main/scala/progscala2/patternmatching/match-guard.sc
 
