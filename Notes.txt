@@ -235,13 +235,50 @@ toTypeRefInfo() demonstrates that typeOf can return more information.
 
 * Essential Scala
 
-Assorted notes from
+Assorted notes from Marius Eriksen marius@twitter.com
 
 http://twitter.github.io/effectivescala/
 
+And he refers to https://docs.scala-lang.org/tour/tour-of-scala.html
+
 ** Variance
 
-Good explanation.
+"Variance arises when generics are combined with subtyping. Variance defines
+how subtyping of the contained type relates to subtyping of the container
+type. Because Scala has declaration site variance annotations, authors of
+common libraries — especially collections — must be prolific annotators."
+
+* Using collection methods
+
+** Using apply
+
+f(x) is supposed to be
+
+f apply x
+
+But this results in 
+
+<console>:14: error: missing argument list for method f
+Unapplied methods are only converted to functions when a function type is expected.
+You can make this conversion explicit by writing `f _` or `f(_)` instead of `f`.
+       f apply "foo"
+
+However, you can use the identity method like this with compose
+
+If
+
+ def f(x: String) = "f(" + x + ")"
+
+val f0 = identity[String] _ compose f _
+
+Then
+
+ f0 apply "foo"
+
+** reduce
+
+See fscal0.sc
+
 
 
 * Postamble

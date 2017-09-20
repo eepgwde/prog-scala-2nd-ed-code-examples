@@ -17,10 +17,11 @@ val successfulSteps = List(
   (i:Int) => Some(i + 5), 
   (i:Int) => Some(i + 10), 
   (i:Int) => Some(i + 25))
+
 val partiallySuccessfulSteps = List(
   (i:Int) => Some(i + 5), 
   // A step that fails and indicates the failure by returning +None+.
-  (i:Int) => None,   // FAIL!
+  (i:Int) => None,   // indicates a fail, not a compiler error.
   (i:Int) => Some(i + 25))
 
 // Fold over the steps, starting with the seed value +0+, wrapped in a +Some+.
