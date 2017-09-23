@@ -1,7 +1,4 @@
-// src/main/scala/progscala2/toolslibs/secho
 #!/bin/sh
-exec scala "$0" "$@"
+exec scala -howtorun:script "$0" "$@"
 !#
-print("You entered: ")
-argv.toList foreach { s => format("%s ", s) }
-println
+printf("You entered: %s: %s\n", args.getClass.getName, args.mkString(","))

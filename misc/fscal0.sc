@@ -76,6 +76,18 @@ Set(values: _*)
 
 // Mutable collections should not be covariant. 
 
+// ** Type Bounds
+
+// https://twitter.github.io/scala_school/advanced-types.html#otherbounds
+
+// For Scala 2.9 and before we had these
+
+// A =:= B  A be equal to B
+// A <:< B  A be a subtype of B
+// A <%< B  A be viewable as B
+
+// They have now been replaced =:= is still needed, but A<% B is the notation now.
+
 // ** Upper and lower type bounds
 
 // In Scala, type parameters and abstract types may be constrained by a
@@ -221,6 +233,152 @@ mammals.add(new Cat{})
 // *** Note
 // This code doesn't run. It is only a partial implementation.
 
+// ** View Bounds
+
+// https://twitter.github.io/scala_school/advanced-types.html#viewbounds
+
+// Using implicit 
+
+// Another feature of Scala the "Pimp my library" pattern to extend library implementations
+// This is C++ friend notion with the implicit cast.
+
+import scala.language.implicitConversions
+
+class BlingString(string: String) {
+    def bling = "*" + string + "*"
+}
+
+implicit def blingYoString(string: String) = new BlingString(string)
+
+"Let's get blinged out!".bling
+
+// Relaxing a type constraint with a a View bound.
+
+import scala.language.implicitConversions
+
+implicit def strToInt(x: String) = x.toInt
+
+// This sort of thing can be tested with
+// implicitly defined as 
+// def implicitly[T](implicit e: T): T = e
+
+
+// There are a lot of subtleties here. 
+
+// This doesn't bind to a type.
+class Container[A] { def addIt[B <: A](x: B) = 123 + x }
+
+// Here we have a class that is defined by its template.
+// We put a template on the method and that prevents the implicit.
+
+// The implicit evidence does not 
+
+// The class hierarchy for Scala *does not* relate Int as a sub-type of Long 
+// It does allow conversion.
+
+class Container[A] { def addIt[B](x: B)(implicit evidence: B <:< Int) = 123 + x }
+
+(new Container[Int]).addIt(123)
+
+(new Container[Int]).addIt(123:Short)
+
+(new Container[Int]).addIt("123")	// this fails because of the evidence
+
+// Remove the type constraint on the method and use the evidence implicit.
+
+class Container[A] { def addIt(x: A)(implicit evidence: A <:< Int) = 123 + x }
+
+(new Container[Int]).addIt(123)
+
+(new Container[Int]).addIt("123")	// this succeeds by applying the conversion
+
+(new Container[BigInt]).addIt("123")	// this fails too
+
+(new Container[Double]).addIt(123.0)	// this fails too.
+
+// Using direct inheritance Not at all useful with Scala, it has a
+// View hierarchy and not a type hierarchy for Value types.
+
+class Container[A <: Int] { def addIt(x: A) = 123 + x }
+
+(new Container[Int]).addIt(123)
+
+// But this uses the implicit conversion and doesn't need an evidence implicit.
+
+(new Container[Int]).addIt("123")
+
+// But still nothing for Float
+
+(new Container[Int]).addIt(123.0)
+
+// But does support Short, so there must be an implicit in operation.
+
+(new Container[Int]).addIt(123:Short)
+
+// Use the view hierachy - still uses implicit conversions.
+
+class Container[A <% Int] { def addIt(x: A) = 123 + x }
+
+(new Container[Int]).addIt(123)
+
+// And it uses the implicit conversion.
+
+(new Container[Int]).addIt("123")
+
+// But still nothing for Float
+
+(new Container[Int]).addIt(123:Short)
+
+// Use the Numeric trait, but problems with + overloading if 123 is used.
+
+class Container[A: Numeric] { def addIt[B <% A](x: B) = x }
+
+(new Container[Double]).addIt(123:Short)
+
+// case class doesn't work because B type is still generic and may not support toInt.
+
+class Container[A: Numeric] {
+  def addIt[B <% A](x: B) = x match {
+    case Int => 123 + x.toInt
+    case _ => x
+  }
+}
+
+// Overloads will work, but you must define the return type.
+
+class Container[A: Numeric] {
+  def addIt(x: Int) : Int = 123 + x
+  def addIt(x: Double) : Int = 123 + x.toInt
+  def addIt(x: Short) : Int = 123 + x.toInt
+  def addIt(x: String) : Int = 123 + x
+}
+
+// But now, it doesn't use the implicit, it applies string concatenation.
+
+(new Container[Double]).addIt(123:Short)
+(new Container[Double]).addIt("123")
+
+// More overloads.
+
+class Container[A: Numeric] {
+  def addIt(x: Int) : Int = 123 + x
+  def addIt(x: Double) : Int = 123 + x.toInt
+  def addIt(x: Short) : Int = 123 + x.toInt
+  // This won't work now, because the implicit gets in the way.
+  // def addIt(x: String) : Int = 123 + x.toInt
+  // So use it explicitly
+  def addIt(x: String) : Int = 123 + strToInt(x)
+}
+
+(new Container[Double]).addIt(123:Short)
+(new Container[Double]).addIt("123")
+
+// But still stuck with the fixed return type.
+
+// In List we see
+// sum[B >: A](implicit num: Numeric[B]): B
+
+
 // ** collection methods
 
 val input = List(3, 5, 7, 11)
@@ -350,6 +508,14 @@ List(reverse, toUpper, appendBar).foldLeft("foo") {
     (cur, transformation) => op2(cur, transformation)
 }
 
+// With some trace: using an anonymous function.
+
+List(reverse, toUpper, appendBar).foldLeft("foo") {
+    (cur, transformation) => ( (x: String, y: (String => String) ) => { println(x); y(x) } )(cur, transformation)
+}
+
+( (x: Int, y: String) => (new StringBuilder()).append(x).append(" ").append(y) ) (1, "this")
+
 // Using compose and initializing foldLeft with the identity function.
 
 def composeAll[A](ts: Seq[A => A]): A => A = ts.foldLeft(identity[A] _)(_ compose _)
@@ -359,6 +525,63 @@ def applyTransformations(init: String, ts: Seq[String => String]): String =
 
 applyTransformations("foo", List(reverse, toUpper, appendBar))
 
+// Partial function as opposed to using Function1
+
+// These are intended to support failure, unlike Function1. The concept of failure is
+// that the function has no mapping for the given failure.
+
+val sample = 1 to 10
+val isEven: PartialFunction[Int, String] = {
+  case x if x % 2 == 0 => x+" is even"
+  // when it falls through here, then you it is has failed.
+}
+
+isEven isDefinedAt 3
+isEven isDefinedAt 2
+
+// the method collect can use isDefinedAt to select which members to collect
+val evenNumbers = sample collect isEven
+
+val isOdd: PartialFunction[Int, String] = {
+  case x if x % 2 == 1 => x+" is odd"
+}
+
+// the method orElse allows chaining another partial function to handle
+// input outside the declared domain
+val numbers = sample map (isEven orElse isOdd)
+
+// You can use lift() to make it a function that returns a Some
+
+val isEvenV = isEven.lift
+
+isEvenV(3)
+
+isEvenV(2)
+
+// Run with is a more efficient form of applyOrElse.
+
+def f(s: String) = println("that's true")
+
+isEven.runWith(f)(3)
+isEven.runWith(f)(2)
+
+// List work
+
+List('a', 'b', 'c').aggregate(0)({ (sum, ch) => sum + ch.toInt }, { (p1, p2) => p1 + p2 })
+
+val xs = Map("a" -> List(11,111), "b" -> List(22,222)).flatMap(_._2)
+
+val ys = Map("a" -> List(1 -> 11,1 -> 111), "b" -> List(2 -> 22,2 -> 222)).flatMap(_._2)
+
+List(1, 2, 3, 4).fold(0)( (x, y) => x+y)
+
+
+import scala.collection.mutable
+import Numeric._
+
+type NumericList[T] = mutable.MutableList[Numeric[T]] 
+
+var l0 = new NumericList[Int]
 
 
 // * Postamble

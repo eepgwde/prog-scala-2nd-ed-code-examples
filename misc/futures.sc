@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 val futures = (0 to 9) map {                                         // <1>
   i => Future { 
     val s = i.toString                                               // <2>
-    print(s)
+    print("s: " + s)
     s
   }
 }
@@ -35,10 +35,14 @@ val doComplete: PartialFunction[Try[String],Unit] = {                // <3>
   case f @ Failure(_) => println(f)
 }
 
+// This doesn't do the processing in the background.
+def op(i:Int) = { print(s"i: $i; "); Thread.sleep((math.random * 1000).toLong); i.toString }
+
 val futures = (0 to 9) map {                                         // <5>
-  case i if i % 2 == 0 => Future.successful(i.toString)
+  case i if i % 2 == 0 => Future.successful(op(i))
   case i => Future.failed(ThatsOdd(i))
 }
+
 futures map (_ onComplete doComplete)                                // <6>
 
 // * Postamble

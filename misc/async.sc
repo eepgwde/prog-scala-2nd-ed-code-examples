@@ -28,6 +28,8 @@ object AsyncExample {
   }
 }
 
+// *** Results
+
 (-1 to 1) foreach { id =>                                            // <4>
   val fut = AsyncExample.asyncGetRecord(id)
   println(Await.result(fut, Duration.Inf))
