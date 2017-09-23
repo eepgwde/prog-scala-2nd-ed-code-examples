@@ -1,4 +1,6 @@
 #!/bin/sh
 exec scala -howtorun:script "$0" "$0" "$@"
+## weaves
+## It's useful to pass the script name.
 !#
 printf("You entered: %s: %s\n", args.getClass.getName, args.mkString(","))
