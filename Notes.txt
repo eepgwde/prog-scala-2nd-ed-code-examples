@@ -78,8 +78,6 @@ To run a main() method from within sbt use a variant of this
 
  progscala2.concurrency.akka.AkkaClient.main(Array[String]())
 
-
-
 *** intro0.sc
 
 Is a basic overview, written by me from the old textbook.
@@ -303,6 +301,44 @@ Then
 ** reduce
 
 See fscal0.sc
+
+** src/main/scala/progscala2/concurrency/akka/AkkaClient.scala
+
+Good example of a nearly complete application.
+
+Notice the use of the ActorSystem. This loads a configuration file.
+
+Using the ConfigFactory component, see, for example
+
+ https://danielasfregola.com/2015/06/01/loading-configurations-in-scala/
+
+The Akka component is defined here
+
+ http://doc.akka.io/docs/akka/2.5.4/scala/actors.html
+
+*** Logging
+
+The logging is provided by typesafe
+
+ https://github.com/typesafehub/scala-logging
+
+The configuration is given in
+
+ src/main/resources/logback.xml
+
+And there are defined just a few debuggers.
+
+With an import
+
+ import com.typesafe.scalalogging.Logger
+
+ scala> val logger = Logger("progscala2.concurrency.akka")
+ logger: com.typesafe.scalalogging.Logger = com.typesafe.scalalogging.Logger@681d490a
+
+ scala> logger.debug("debug")
+
+ scala> logger.info("info")
+ 17:15:37 INFO  [] - info
 
 
 
