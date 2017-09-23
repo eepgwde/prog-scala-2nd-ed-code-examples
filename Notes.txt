@@ -312,9 +312,12 @@ Using the ConfigFactory component, see, for example
 
  https://danielasfregola.com/2015/06/01/loading-configurations-in-scala/
 
-The Akka component is defined here
+The Akka component is described here
 
  http://doc.akka.io/docs/akka/2.5.4/scala/actors.html
+
+progscala2.concurrency.akka.AkkaClient.main(Array[String]())
+
 
 *** Logging
 

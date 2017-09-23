@@ -4,18 +4,26 @@ package progscala2.concurrency.akka
 import akka.actor.{ActorRef, ActorSystem, Props}
 import java.lang.{NumberFormatException => NFE}
 
+import com.typesafe.scalalogging.Logger
+
 object AkkaClient {                                                  // <1>
   import Messages._
 
   private var system: Option[ActorSystem] = None                     // <2>
 
+  val logger = Logger("progscala2.concurrency.akka")
+
+  protected val ckey = "server.number-workers"
+
   def main(args: Array[String]) = {                                  // <3>
-    processArgs(args)
     val sys = ActorSystem("AkkaClient")                              // <4>
+    logger.info(s"config: $ckey " + sys.settings.config.getInt(ckey))
+
+    processArgs(args)
     system = Some(sys)
+
     val server = ServerActor.make(sys)                               // <5>
-    val numberOfWorkers =                                            // <6>
-      sys.settings.config.getInt("server.number-workers")
+    val numberOfWorkers = sys.settings.config.getInt(ckey)
     server ! Start(numberOfWorkers)                                  // <7>
     processInput(server)                                             // <8>
   }

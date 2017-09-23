@@ -31,8 +31,11 @@ object Service {
   }
 }
 
+// *** Activate
+
 Service.handle(LocalComputation(Future(LocalResponse(0))))
 // Result: LocalResponse = LocalResponse(0)
+
 Service.handle(RemoteComputation(Future(RemoteResponse("remote call"))))
 // Result: RemoteResponse = RemoteResponse(remote call)
 
