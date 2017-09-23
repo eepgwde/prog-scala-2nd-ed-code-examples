@@ -68,6 +68,18 @@ to correct that.
 
 Working through these, re-ordering, testing and correcting as I go.
 
+*** Shell Scripts
+
+To run a scala script from the command line, see
+
+ src/main/scala/progscala2/toolslibs/secho
+
+To run a main() method from within sbt use a variant of this
+
+ progscala2.concurrency.akka.AkkaClient.main(Array[String]())
+
+
+
 *** intro0.sc
 
 Is a basic overview, written by me from the old textbook.
@@ -79,6 +91,10 @@ return value type.
 
 The equals sign use for the assignment of some executable code for a
 function.
+
+There's a simple background thread-processing example. Uses
+
+ import scala.concurrent.ExecutionContext.Implicits.global
 
 *** recursion.sc
 
@@ -232,6 +248,15 @@ There is no >:> you have to turn the arguments around.
 There's a toType2() that uses an implicit, it returns the same as toType.
 
 toTypeRefInfo() demonstrates that typeOf can return more information.
+
+* futures.sc
+
+Demonstrates backgrounding tasks with Future.
+How to return success or failure.
+
+* async.sc
+
+How to background parts of sequences using async and await {} blocks.
 
 * Essential Scala
 
