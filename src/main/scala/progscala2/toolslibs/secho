@@ -1,4 +1,4 @@
 #!/bin/sh
-exec scala -howtorun:script "$0" "$@"
+exec scala -howtorun:script "$0" "$0" "$@"
 !#
 printf("You entered: %s: %s\n", args.getClass.getName, args.mkString(","))
