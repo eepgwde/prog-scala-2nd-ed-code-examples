@@ -779,6 +779,11 @@ def instantiate[T](s: String)(implicit m: Manifest[T]): T = {
   constructor.newInstance(s).asInstanceOf[T]
 }
 
+def instance(v0: String, s: String) = v0 match {
+  case "java.lang.Short" => instantiate[java.lang.Short](s)
+  case "java.lang.Integer" => instantiate[java.lang.Integer](s)
+}
+
 List(instantiate[java.lang.Short]("1234"), instantiate[java.lang.Integer]("1234") )
 
 // * Postamble
