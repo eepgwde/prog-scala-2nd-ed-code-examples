@@ -583,6 +583,89 @@ type NumericList[T] = mutable.MutableList[Numeric[T]]
 
 var l0 = new NumericList[Int]
 
+// * Paradigmatic 
+
+// ** Imperative style
+
+def fibImper(n: Int): Int = {
+  var i = 0
+  var j = 1
+
+  for (k <- 0 until n) {
+    val l = i + j
+    i = j
+    j = l
+  }
+  i
+}
+
+// ** Recursive - stack-based, no tail recursion optimization.
+
+def fibRec(n: Int): Int = {
+  n match {
+    case 0 => 0
+    case 1 => 1
+    case _ => fib1(n-1) + fib1(n-2)
+  }
+}
+
+// ** Recursive - with tail recursion optimization.
+
+def fibTailRec(n: Int): Int = {
+  @annotation.tailrec 
+  def f(a: Int, b: Int, c: Int): Int = if (a == 0) 0 else if(a < 2) c else f(a-1, c, b + c)
+
+  f(n, 0, 1)
+}
+
+// ** Recursive - stream implementation
+
+val fibStream:Stream[Int] = 0 #:: 1 #:: (fib4 zip fibs.tail).map{ t => t._1 + t._2 }
+
+lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map { n => n._1 + n._2 }
+
+// * Pimp my library
+
+// This allows a library implementation to be extended using implicit methods.
+// https://alvinalexander.com/scala/scala-2.10-implicit-class-example
+
+// implicit cannot be used for top-level objects.
+
+val result = "HAL".increment
+
+implicit class StringImprovements(s: String) {
+  def increment = s.map(c => (c + 1).toChar)
+}
+
+val result = "HAL".increment
+
+// ** Using Option
+
+// You may have a larger object, request, that has optional parameters
+
+val name: Option[String] = /* request getParameter */ Option[String]("name")
+val upper = name map { _.trim } filter { _.length != 0 } map { _.toUpperCase }
+println(upper getOrElse "")
+
+// This can be expressed with a for comprehension
+
+val upper = for {
+  name <- /* request getParameter */ Option[String]("name")
+  trimmed <- Some(name.trim)
+  upper <- Some(trimmed.toUpperCase) if trimmed.length != 0
+} yield upper
+println(upper getOrElse "")
+
+// Or using match.
+
+val nameMaybe = /* request getParameter */ Option[String]("name")
+nameMaybe match {
+  case Some(name) =>
+    println(name.trim.toUpperCase)
+  case None =>
+    println("No name value")
+}
+
 
 // * Postamble
 

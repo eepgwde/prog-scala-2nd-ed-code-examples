@@ -32,7 +32,7 @@ class ServerActor extends Actor with ActorLogging {                  // <1>
     case Start(numberOfWorkers) => 
       workers = ((1 to numberOfWorkers) map makeWorker).toVector
       context become processRequests                                 // <6>
-  }
+ }
 
   val processRequests: Receive = {                                   // <7>
     case c @ Crash(n) => workers(n % workers.size) ! c

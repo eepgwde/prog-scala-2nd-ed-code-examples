@@ -60,6 +60,32 @@ but that will exit the sbt shell.
 
 You can achieve the same by not forking.
 
+***** Forking for Tests
+
+There is a issue with using some Java classes in test/. Particularly,
+locating resources.
+
+The problem appears to be that the SBT thread does not resolve run time
+class loads back to the JVM (the missing resources are provided by rt.jar
+and resources.jar). This can be fixed by forcing the SBT thread to fork new
+threads for each test by putting the following instruction into the main
+body of the SBT build file,
+
+fork in Test := true
+
+*** Test
+
+Easy to invoke.
+
+ sbt test
+ sbt test-only example.CSV
+
+*** Document
+
+Easy to invoke.
+
+ sbt doc
+
 ** Scripts
 
 I've concatenated the scripts '*.sc' in each directory and put them into
@@ -318,6 +344,7 @@ The Akka component is described here
 
 progscala2.concurrency.akka.AkkaClient.main(Array[String]())
 
+Akka has very extensive features for real-time control.
 
 *** Logging
 
@@ -342,6 +369,20 @@ With an import
 
  scala> logger.info("info")
  17:15:37 INFO  [] - info
+
+* Akka
+
+https://github.com/akka/akka-samples
+
+Very comprehensive Actor paradigm.
+
+These use sbt and multi-jvm testing
+
+ > multi-jvm:test
+ > multi-jvm:test-only sample.distributeddata.ReplicatedMetricsSpec
+
+** Finite state machines - replicated data
+
 
 
 
