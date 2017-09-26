@@ -666,6 +666,120 @@ nameMaybe match {
     println("No name value")
 }
 
+// ** Polymorphism
+
+// A useful property of Option is to be able to return None of a particular type.
+
+Option.empty[Byte]
+
+trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+implicit val listContainer = new Container[List] { 
+  def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head 
+}
+
+implicit val optionContainer = new Container[Option] { 
+  def put[A](x: A) = Option(x)
+  def get[A](m: Option[A]) = m.get
+}
+
+def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+  val c = implicitly[Container[M]]
+  c.put(c.get(fst), c.get(snd))
+}
+
+// *** Notes
+// The Container trait supports put and get of a contained object.
+// This means the type can be held in the container.
+//
+// The listContainer and optionContainer are effectively factory objects (singletons).
+//
+// The Container is needed because type inference will simplify structure types.
+
+// This returns List[Short], forcing Byte to be a short and losing the type information.
+List(1:Short, 1:Byte)
+
+// The idea of the container is to hold the typed data unchanged.
+{
+  // Using List as a container we can preserve type info.
+  val v1 = List(List(1:Short), List(1:Byte))
+  println(v1(0)(0).getClass.getName + "; " + v1(1)(0).getClass.getName)
+}
+
+// tupleize removes a level of composition.
+// and we can use Option 
+tupleize(List(1), List(2))
+
+tupleize(Option(1), Option(2))
+
+{
+  val v0 = tupleize(Option(1:Short), Option(2:Byte))
+  println(v0.get._1.getClass.getName + "; " + v0.get._2.getClass.getName)
+
+}
+
+tupleize(List(1), List(2:Short))
+
+tupleize(Option(1), Option(2:Short))
+
+// To store an empty.
+
+tupleize(Option(1:Short), Option(Option.empty[Byte]) )
+
+tupleize(Option(1:Short), Option(None))
+
+// And not - I have tried to adjust definitions.
+
+tupleize(Option(1:Short), Option.empty[Byte] )
+
+import scala.util.control.Exception._
+
+def toByteOpt(s: String) = optionContainer put catching(classOf[NumberFormatException]) opt s.toByte
+def toShortOpt(s: String) = optionContainer put catching(classOf[NumberFormatException]) opt s.toShort
+def toIntOpt(s: String) = optionContainer put catching(classOf[NumberFormatException]) opt s.toInt
+
+val l0 = List(toByteOpt _, toShortOpt _, toIntOpt _)
+
+l0.map( _("1234") )
+
+l0.find( !_("1234").isEmpty )
+
+
+// But this could be used, but the type is inferred as Option[(Any, Any)]
+
+{
+  val x1 = tupleize(toByteOpt("1234") orElse Option(None), 
+		    toByteOpt("123") orElse Option(None) )
+  x1.get._2.getClass.getName
+}
+
+// * Typing strings
+
+def toByteOpt(s: String) = catching(classOf[NumberFormatException]) opt s.toByte
+def toShortOpt(s: String) = catching(classOf[NumberFormatException]) opt s.toShort
+def toIntOpt(s: String) = catching(classOf[NumberFormatException]) opt s.toInt
+def toLongOpt(s: String) = catching(classOf[NumberFormatException]) opt s.toLong
+def toDoubleOpt(s: String) = catching(classOf[NumberFormatException]) opt s.toDouble
+def toStringOpt(s: String) = Option[String](s)
+
+val l0 = List(toByteOpt _, toShortOpt _, toIntOpt _, toLongOpt _, toDoubleOpt _, toStringOpt _)
+
+val v0 = l0.map( _("1234")).find(!_.isEmpty).get.get.getClass.getName
+
+val c0 = Class.forName(v0)
+
+val cons = c0.getConstructor(Class.forName("java.lang.String"))
+
+val s0 = cons.newInstance("1234").asInstanceOf[Short]
+
+def instantiate[T](s: String)(implicit m: Manifest[T]): T = {
+  val nm = m.erasure.getName
+  val clazz = Class.forName(nm)
+  val constructor = clazz.getConstructor(Class.forName("java.lang.String"))
+  constructor.newInstance(s).asInstanceOf[T]
+}
+
+List(instantiate[java.lang.Short]("1234"), instantiate[java.lang.Integer]("1234") )
 
 // * Postamble
 
