@@ -6,7 +6,11 @@ organization := "org.programming-scala"
 
 scalaVersion := "2.11.8"
 
+val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5"
+//  "org.scalatest"          %% "scalatest"       % "2.2.4"  % "test",
 
+lazy val scala0 = (project in file("."))
+  .settings(
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-async"     % "0.9.2",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2",
@@ -18,24 +22,29 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
   "org.scalaz"             %% "scalaz-core"     % "7.1.0",
   "org.scalacheck"         %% "scalacheck"      % "1.12.5" % "test",
-  "org.scalatest"          %% "scalatest"       % "2.2.4"  % "test",
+  scalaTest                                                % "test",
   "org.specs2"             %% "specs2"          % "2.4"    % "test",
   // JUnit is used for some Java interop. examples. A driver for JUnit:
   "junit"                   % "junit-dep"       % "4.10"   % "test",
   "com.novocode"            % "junit-interface" % "0.10"   % "test"
-)
+),
 
 scalacOptions ++= Seq(
   "-encoding", "UTF-8", "-optimise",
   "-deprecation", "-unchecked", "-feature", "-Xlint",
   "-Ywarn-infer-any", "-Yinline-warnings",
-// Nice, but hard to eliminate these warnings: "-Ywarn-value-discard")
-  "-language:experimental.macros")
+  "-language:experimental.macros"),
+
+// Nice, but hard to eliminate these warnings: "-Ywarn-value-discard"
 
 javacOptions  ++= Seq(
-  "-Xlint:unchecked", "-Xlint:deprecation") // Java 8: "-Xdiags:verbose")
+  "-Xlint:unchecked", "-Xlint:deprecation"),
+
+// Java 8: "-Xdiags:verbose",
 
 // Enable improved incremental compilation feature in 2.11.X.
 // see http://www.scala-lang.org/news/2.11.1
 
 incOptions := incOptions.value.withNameHashing(true)
+)
+
