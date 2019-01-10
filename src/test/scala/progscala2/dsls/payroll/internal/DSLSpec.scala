@@ -3,12 +3,13 @@ package progscala2.dsls.payroll.internal
 import progscala2.dsls.payroll.common._
 import scala.language.implicitConversions
 import scala.language.postfixOps
-import org.scalatest.{FunSpec, ShouldMatchers}
+
 import org.scalatest.prop.Checkers._
 import org.scalacheck._
+import org.scalatest.{FunSpec, Matchers}
 
 // TODO: Really this should be a ScalaCheck properties test.
-class DSLSpec extends FunSpec with ShouldMatchers {
+class DSLSpec extends FunSpec with Matchers {
   import dsl._
 
   val biweeklyDeductions = biweekly { deduct =>

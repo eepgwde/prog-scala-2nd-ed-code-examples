@@ -29,7 +29,7 @@ class ShapesDrawingDriver(drawerActor: ActorRef) extends Actor {     // <5>
       drawerActor ! Exit
     case Finished =>                                                 // <7>
       println(s"ShapesDrawingDriver: cleaning up...")
-      context.system.shutdown()
+      // system.shutdown()
     case response: Response =>                                       // <8>
       println("ShapesDrawingDriver: Response = " + response)
     case unexpected =>                                               // <9>

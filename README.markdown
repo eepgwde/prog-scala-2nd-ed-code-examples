@@ -1,5 +1,15 @@
 # Programming Scala, 2nd Edition#
 
+Operating instructions.
+
+This builds and tests under sbt.
+
+You can set-up plugins for eclipse and ensime support.
+
+A lot of the code fragments are in misc/ and can be used directly in the sbt console.
+
+# Programming Scala, 2nd Edition#
+
 ## README for the Code Examples ##
 
 *Dean Wampler*<br/>

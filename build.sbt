@@ -1,50 +1,54 @@
-name := "Programming Scala, Second Edition - Code examples"
+ThisBuild / scalaVersion     := "2.12.8"
+ThisBuild / version          := "0.1.0-SNAPSHOT"
+ThisBuild / organization     := "com.example"
+ThisBuild / organizationName := "example"
 
-version := "2.1"
+import Dependencies._
 
-organization := "org.programming-scala"
+testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a"))
 
-scalaVersion := "2.11.8"
-
-val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5"
-//  "org.scalatest"          %% "scalatest"       % "2.2.4"  % "test",
-
-lazy val scala0 = (project in file("."))
+lazy val root = (project in file("."))
   .settings(
-libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-async"     % "0.9.2",
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2",
-  "org.scala-lang.modules" %% "scala-xml"       % "1.0.2",
-  "org.scala-lang"          % "scala-reflect"   % scalaVersion.value,
-  "com.typesafe.akka"      %% "akka-actor"      % "2.3.4",
-  "com.typesafe.akka"      %% "akka-slf4j"      % "2.3.4",
-  "ch.qos.logback"          % "logback-classic" % "1.1.2",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-  "org.scalaz"             %% "scalaz-core"     % "7.1.0",
-  "org.scalacheck"         %% "scalacheck"      % "1.12.5" % "test",
-  scalaTest                                                % "test",
-  "org.specs2"             %% "specs2"          % "2.4"    % "test",
-  // JUnit is used for some Java interop. examples. A driver for JUnit:
-  "junit"                   % "junit-dep"       % "4.10"   % "test",
-  "com.novocode"            % "junit-interface" % "0.10"   % "test"
-),
+    name := "Prog-Scala",
+    crossPaths := false,
+    fork in Test := true,
+    parallelExecution := true,
+    parallelExecution in Test := false,
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies ++= deps0,
+    javacOptions  ++= Seq(
+      "-Xlint:unchecked", "-Xlint:deprecation", "-Xdiags:verbose"),
+    scalacOptions ++= Seq(
+      "-encoding", "UTF-8", 
+      "-deprecation", "-unchecked", "-feature", "-Xlint",
+      "-Ywarn-infer-any", 
+      "-language:experimental.macros")
+  )
 
-scalacOptions ++= Seq(
-  "-encoding", "UTF-8", "-optimise",
-  "-deprecation", "-unchecked", "-feature", "-Xlint",
-  "-Ywarn-infer-any", "-Yinline-warnings",
-  "-language:experimental.macros"),
+// Uncomment the following for publishing to Sonatype.
+// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for more detail.
 
-// Nice, but hard to eliminate these warnings: "-Ywarn-value-discard"
-
-javacOptions  ++= Seq(
-  "-Xlint:unchecked", "-Xlint:deprecation"),
-
-// Java 8: "-Xdiags:verbose",
-
-// Enable improved incremental compilation feature in 2.11.X.
-// see http://www.scala-lang.org/news/2.11.1
-
-incOptions := incOptions.value.withNameHashing(true)
-)
-
+// ThisBuild / description := "Some descripiton about your project."
+// ThisBuild / licenses    := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+// ThisBuild / homepage    := Some(url("https://github.com/example/project"))
+// ThisBuild / scmInfo := Some(
+//   ScmInfo(
+//     url("https://github.com/your-account/your-project"),
+//     "scm:git@github.com:your-account/your-project.git"
+//   )
+// )
+// ThisBuild / developers := List(
+//   Developer(
+//     id    = "Your identifier",
+//     name  = "Your Name",
+//     email = "your@email",
+//     url   = url("http://your.url")
+//   )
+// )
+// ThisBuild / pomIncludeRepository := { _ => false }
+// ThisBuild / publishTo := {
+//   val nexus = "https://oss.sonatype.org/"
+//   if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+//   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+// }
+// ThisBuild / publishMavenStyle := true

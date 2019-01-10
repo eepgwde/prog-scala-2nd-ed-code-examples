@@ -21,7 +21,10 @@ f0(m)
 
 // ** Maps and iterations
 
-m.foreach( x => println(s"$x._1 -> $x._2"))
+// Demonstrates string interpolation
+m.take(4).foreach( x => println(s"${x._1} -> ${x._2}"))
+
+m.take(4).foreach( x => printf("%s -> %s\n", x._1, x._2))
 
 for ((k,v) <- m) printf("key: %s, value: %s\n", k, v)
 
@@ -116,6 +119,9 @@ val l1: List[Apple] = Apple() :: Nil
 
 val l2: List[Fruit] = Orange() :: l1
 
+l1.head
+l2.head
+
 // **** Note
 
 // The generic lists are covariant because of Fruit.
@@ -132,6 +138,9 @@ val a: Array[Any] = Array[Int](1, 2, 3)
 
 // But a wild card will allow it.
 val a: Array[_ <: Any] = Array[Int](1, 2, 3)
+
+// To access an array element
+a(0)
 
 // ** Identifiers
 
@@ -249,7 +258,7 @@ for (file <- filesHere)
 def scalaFiles =
   for {
     file <- filesHere
-    if file.getName.endsWith(".scala")
+    if file.getName.endsWith(".sc")
   } yield file
 
 // *** try-catch
@@ -346,7 +355,7 @@ object CopyBytes extends App {
 // Like this one
 
 class Person {
-    var name: String = _
+  var name: String = _
   var age: Int = 0
 }
 
@@ -480,6 +489,8 @@ val add15 = makeIncreaser(15)
 
 add10(5)
 add10(15)
+
+add15(5)
 
 // ** Function Parameters Definition 
 
